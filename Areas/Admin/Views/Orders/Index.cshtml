@@ -1,0 +1,120 @@
+﻿
+@model IEnumerable<KTBEE_NguyenHoangAnh.Models.Order>
+@using System.Linq
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid my-4">
+    <h2>Quản lý đơn hàng LuxuryAuto</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @using (Html.BeginForm("Index", "Orders",
+        new { area = "Admin" }, FormMethod.Get))
+    {
+        <div class="row g-2 mb-4">
+            <div class="col-md-5">
+                <input type="text"
+                       name="searchTerm"
+                       value="@ViewBag.SearchTerm"
+                       class="form-control"
+                       placeholder="Tìm mã đơn hoặc tên khách hàng" />
+            </div>
+
+            <div class="col-md-4">
+                <select name="status" class="form-select">
+                    <option value="">Tất cả trạng thái</option>
+                    @foreach (string s in new[] {
+                        "Chờ thanh toán",
+                        "Đang xử lý",
+                        "Đang vận chuyển",
+                        "Đã giao",
+                        "Đã hủy"
+                    })
+                    {
+                        <option value="@s"
+                                selected="@(ViewBag.SelectedStatus == s ? "selected" : null)">
+                            @s
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-primary">
+                    Tìm kiếm
+                </button>
+                <a href="@Url.Action("Index", "Orders",
+                     new { area = "Admin" })"
+                   class="btn btn-secondary">
+                    Làm mới
+                </a>
+            </div>
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>#@item.OrderID</td>
+                        <td>
+                            @(item.Customer != null
+                                ? item.Customer.CustomerName
+                                : "Không xác định")
+                        </td>
+                        <td>
+                            @item.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+                        <td class="text-danger fw-bold">
+                            @String.Format("{0:N0}", item.TotalAmount) VNĐ
+                        </td>
+                        <td>@item.PaymentStatus</td>
+                        <td>@item.OrderStatus</td>
+                        <td>
+                            <a class="btn btn-primary btn-sm"
+                               href="@Url.Action("Details", "Orders",
+                                   new { area = "Admin",
+                                         id = item.OrderID })">
+                                Xem chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Không có đơn hàng nào.
+        </div>
+    }
+</div>

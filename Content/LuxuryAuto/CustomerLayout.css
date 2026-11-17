@@ -1,0 +1,509 @@
+﻿:root {
+    --lux-dark: #151719;
+    --lux-gold: #c7a66d;
+    --lux-paper: #f7f5f1;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--lux-paper);
+    color: #242424;
+    font-family: Arial, sans-serif;
+}
+
+/* Thanh điều hướng */
+.lux-navbar {
+    position: relative;
+    z-index: 1030;
+    padding: 18px 0;
+    background: var(--lux-dark);
+    border-bottom: 1px solid #343434;
+}
+
+.lux-nav-inner {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px 28px;
+}
+
+.lux-brand {
+    flex-shrink: 0;
+    color: white;
+    font-size: 27px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    .lux-brand:hover {
+        color: white;
+    }
+
+    .lux-brand span {
+        color: var(--lux-gold);
+    }
+
+.lux-navigation {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    min-width: 0;
+}
+
+.lux-links {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.lux-nav-link {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 6px;
+    color: #ddd;
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: color 0.2s, background 0.2s;
+}
+
+    .lux-nav-link:hover,
+    .lux-nav-link:focus-visible {
+        background: #252729;
+        color: var(--lux-gold);
+    }
+
+.lux-actions {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-left: auto;
+}
+
+/* Giỏ hàng */
+.lux-cart {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1px solid #68604f;
+    border-radius: 6px;
+    color: #ead6b0;
+    font-size: 14px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+}
+
+    .lux-cart:hover {
+        background: var(--lux-gold);
+        color: #151719;
+    }
+
+.lux-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    border-radius: 20px;
+    background: var(--lux-gold);
+    color: #151719;
+    font-size: 12px;
+}
+
+/* Nút dùng chung */
+.lux-button {
+    display: inline-block;
+    padding: 10px 18px;
+    border: 1px solid var(--lux-gold);
+    border-radius: 6px;
+    background: var(--lux-gold);
+    color: #151719;
+    font-family: inherit;
+    font-weight: 600;
+    line-height: 1.5;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+    .lux-button:hover {
+        border-color: #dbc08e;
+        background: #dbc08e;
+        color: #151719;
+    }
+
+.lux-register {
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+/* Menu tài khoản */
+.customer-account {
+    position: relative;
+}
+
+.customer-account-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    max-width: 220px;
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #eee;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .customer-account-name span:first-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+.customer-account-arrow {
+    color: var(--lux-gold);
+    font-size: 12px;
+}
+
+.customer-account:hover .customer-account-name,
+.customer-account:focus-within .customer-account-name {
+    background: #292b2d;
+    color: var(--lux-gold);
+}
+
+.customer-account-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    max-width: calc(100vw - 32px);
+    padding: 18px;
+    border: 1px solid #e5dfd5;
+    border-radius: 10px;
+    background: white;
+    color: #252525;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+    z-index: 1100;
+}
+
+.customer-account:hover .customer-account-menu,
+.customer-account:focus-within .customer-account-menu {
+    display: block;
+}
+
+.customer-account-heading {
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #eeeae3;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.customer-account-detail {
+    margin-bottom: 14px;
+}
+
+    .customer-account-detail span {
+        display: block;
+        margin-bottom: 4px;
+        color: #888;
+        font-size: 12px;
+    }
+
+    .customer-account-detail strong {
+        display: block;
+        font-size: 14px;
+        font-weight: 500;
+        overflow-wrap: anywhere;
+    }
+
+.customer-logout-form {
+    margin: 16px 0 0;
+    padding-top: 12px;
+    border-top: 1px solid #eeeae3;
+}
+
+.customer-logout-button {
+    width: 100%;
+    padding: 10px;
+    border: 0;
+    border-radius: 6px;
+    background: #faf0ed;
+    color: #b54132;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .customer-logout-button:hover,
+    .customer-logout-button:focus-visible {
+        background: #f5dfd9;
+    }
+
+/* Nội dung trang */
+.lux-main {
+    flex: 1;
+    padding-top: 28px;
+    padding-bottom: 60px;
+}
+
+/* Chân trang */
+.lux-footer {
+    padding: 30px 0;
+    background: var(--lux-dark);
+    color: #b7b7b7;
+    font-size: 13px;
+}
+
+.lux-footer-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.lux-footer-brand {
+    color: var(--lux-gold);
+    font-size: 20px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+    .lux-footer-brand:hover {
+        color: #dbc08e;
+    }
+
+/* Máy tính bảng */
+@media (max-width: 991px) {
+    .lux-nav-inner {
+        gap: 14px 20px;
+    }
+
+    .lux-navigation {
+        gap: 12px;
+    }
+
+    .lux-nav-link {
+        padding: 8px;
+        font-size: 13px;
+    }
+
+    .lux-actions {
+        gap: 8px;
+    }
+
+    .lux-cart,
+    .lux-register {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* Điện thoại */
+@media (max-width: 767px) {
+    .lux-navbar {
+        padding: 16px 0;
+    }
+
+    .lux-brand {
+        font-size: 25px;
+    }
+
+    .lux-navigation {
+        flex-basis: 100%;
+    }
+
+    .lux-main {
+        padding-top: 20px;
+        padding-bottom: 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    .lux-navigation {
+        align-items: flex-start;
+    }
+
+    .lux-actions {
+        width: 100%;
+        margin-left: 0;
+        padding-top: 12px;
+        border-top: 1px solid #343434;
+    }
+
+    .customer-account-name {
+        max-width: 160px;
+    }
+
+    .customer-account-menu {
+        right: 0;
+        left: auto;
+        width: 240px;
+    }
+}
+.customer-info-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #252525;
+    font-family: inherit;
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+}
+
+    .customer-info-button:hover,
+    .customer-info-button:focus-visible {
+        background: #f5f1e9;
+        color: #806133;
+    }
+
+.customer-info-modal {
+    border: 1px solid #e5dfd5;
+    border-radius: 12px;
+}
+
+    .customer-info-modal .modal-header,
+    .customer-info-modal .modal-footer {
+        border-color: #eeeae3;
+    }
+
+    .customer-info-modal .modal-body {
+        padding: 24px;
+    }
+
+.customer-profile-card {
+    max-width: 620px;
+    margin: 15px auto;
+    padding: 28px;
+    border: 1px solid #e5dfd5;
+    border-radius: 12px;
+    background: white;
+}
+
+    .customer-profile-card h2 {
+        font-size: 26px;
+    }
+
+    .customer-profile-card .form-control {
+        padding: 11px 13px;
+        border-color: #ded6c8;
+    }
+
+        .customer-profile-card .form-control:focus {
+            border-color: #b28b50;
+            box-shadow: 0 0 0 3px rgba(178, 139, 80, 0.12);
+        }
+
+.profile-avatar-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 24px 0;
+}
+
+.profile-avatar-image,
+.profile-avatar-fallback {
+    width: 130px;
+    height: 130px;
+    border: 4px solid #eee8dd;
+    border-radius: 50%;
+}
+
+.profile-avatar-image {
+    object-fit: cover;
+}
+
+.profile-avatar-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #151719;
+    color: #c7a66d;
+    font-size: 46px;
+}
+
+.profile-avatar-wrap [hidden] {
+    display: none !important;
+}
+
+.customer-info-button {
+    text-decoration: none;
+}
+
+@media (max-width: 480px) {
+    .customer-profile-card {
+        padding: 20px;
+    }
+}
+.lux-category {
+    position: relative;
+}
+
+.lux-category-toggle {
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.lux-category-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    min-width: 170px;
+    padding: 8px;
+    border: 1px solid #e5dfd5;
+    border-radius: 9px;
+    background: white;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    z-index: 1100;
+}
+
+.lux-category:hover .lux-category-menu,
+.lux-category:focus-within .lux-category-menu {
+    display: block;
+}
+
+.lux-category-menu a {
+    display: block;
+    padding: 11px 14px;
+    border-radius: 5px;
+    color: #252525;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+    .lux-category-menu a:hover,
+    .lux-category-menu a:focus-visible {
+        background: #f5f1e9;
+        color: #806133;
+    }
+.lux-orders-link {
+    margin-right: 24px;
+}

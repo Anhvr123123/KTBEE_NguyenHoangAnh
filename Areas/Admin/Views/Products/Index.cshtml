@@ -1,0 +1,122 @@
+﻿
+@model IEnumerable<KTBEE_NguyenHoangAnh.Models.Product>
+@using System.Linq
+
+@{
+    ViewBag.Title = "Quản lý xe";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Quản lý sản phẩm</h2>
+
+        <a href="@Url.Action("Create", "Products",
+                 new { area = "Admin" })"
+           class="btn btn-success">
+            + Thêm xe mới
+        </a>
+    </div>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    @using (Html.BeginForm("Index", "Products",
+        new { area = "Admin" }, FormMethod.Get))
+    {
+        <div class="input-group mb-4">
+            <input type="text"
+                   name="searchTerm"
+                   value="@ViewBag.SearchTerm"
+                   class="form-control"
+                   placeholder="Tìm kiếm tên xe..." />
+
+            <button class="btn btn-primary" type="submit">
+                Tìm kiếm
+            </button>
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã xe</th>
+                    <th>Ảnh</th>
+                    <th>Tên xe</th>
+                    <th>Hãng</th>
+                    <th>Giá bán</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    string imageUrl = item.ProductImage;
+
+                    if (!string.IsNullOrWhiteSpace(imageUrl)
+                        && imageUrl.StartsWith("~/"))
+                    {
+                        imageUrl = Url.Content(imageUrl);
+                    }
+
+                    <tr>
+                        <td>@item.ProductID</td>
+
+                        <td>
+                            <img src="@imageUrl"
+                                 width="110"
+                                 height="75"
+                                 style="object-fit:cover;"
+                                 alt="@item.ProductName" />
+                        </td>
+
+                        <td>@item.ProductName</td>
+
+                        <td>
+                            @(item.Category != null
+                                ? item.Category.CategoryName : "")
+                        </td>
+
+                        <td class="text-danger fw-bold">
+                            @String.Format("{0:N0}", item.ProductPrice) VNĐ
+                        </td>
+
+                        <td>
+                            <a href="@Url.Action("Details",
+                                     new { id = item.ProductID })"
+                               class="btn btn-info btn-sm">
+                                Chi tiết
+                            </a>
+
+                            <a href="@Url.Action("Edit",
+                                     new { id = item.ProductID })"
+                               class="btn btn-warning btn-sm">
+                                Sửa
+                            </a>
+
+                            <a href="@Url.Action("Delete",
+                                     new { id = item.ProductID })"
+                               class="btn btn-danger btn-sm">
+                                Xóa
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

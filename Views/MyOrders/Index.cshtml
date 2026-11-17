@@ -1,0 +1,73 @@
+﻿@model System.Collections.Generic.List<KTBEE_NguyenHoangAnh.Models.Order>
+@using System.Globalization
+
+@{
+    ViewBag.Title = "Đơn hàng của tôi";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h2 class="mb-0">Đơn hàng của tôi</h2>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "Home", new { area = "" })">
+        Tiếp tục xem xe
+    </a>
+</div>
+
+@if (Model.Count == 0)
+{
+    <div class="bg-white border rounded-3 p-5 text-center">
+        <h4>Bạn chưa có đơn hàng</h4>
+        <p class="text-muted">
+            Các đơn hàng đã đặt sẽ xuất hiện tại đây.
+        </p>
+
+        <a class="lux-button"
+           href="@Url.Action("Index", "Home", new { area = "" })">
+            Khám phá bộ sưu tập
+        </a>
+    </div>
+}
+else
+{
+    <div class="bg-white border rounded-3 p-3">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Mã đơn</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái đơn</th>
+                        <th>Thanh toán</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var order in Model)
+                    {
+                        <tr>
+                            <td>#@order.OrderID</td>
+
+                            <td>
+                                @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            </td>
+
+                            <td class="fw-semibold text-nowrap">
+                                @string.Format(vi, "{0:N0}", order.TotalAmount)
+                                VNĐ
+                            </td>
+
+                            <td>@order.OrderStatus</td>
+
+                            <td>@order.PaymentStatus</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

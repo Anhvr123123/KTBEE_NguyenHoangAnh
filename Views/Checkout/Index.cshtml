@@ -1,0 +1,173 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.CheckoutViewModel
+@using System.Globalization
+
+@{
+    ViewBag.Title = "Xác nhận đặt hàng";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+@section styles {
+    <link href="~/Content/LuxuryAuto/LuxuryAuto.css" rel="stylesheet" />
+}
+
+<div class="checkout-heading">
+    <h1>Xác nhận đặt hàng</h1>
+    <p>Kiểm tra thông tin nhận xe và chọn phương thức thanh toán.</p>
+</div>
+
+@using (Html.BeginForm(
+    "Index",
+    "Checkout",
+    new { area = "" },
+    FormMethod.Post,
+    new { @class = "checkout-form" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.ValidationSummary(
+            true, "", new { @class = "text-danger mb-3" })
+
+    <div class="row g-4">
+        <div class="col-md-7">
+            <section class="checkout-box">
+                <h2>Thông tin nhận xe</h2>
+
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.CustomerName,
+                                  "Họ và tên",
+                                  new { @class = "form-label" })
+
+                    @Html.TextBoxFor(m => m.CustomerName,
+                                  new
+                                  {
+                                      @class = "form-control",
+                                      @readonly = "readonly"
+                                  })
+
+                    @Html.ValidationMessageFor(
+                                  m => m.CustomerName, "",
+                                  new { @class = "text-danger small" })
+                </div>
+
+                <div class="mb-3">
+                    @Html.LabelFor(m => m.CustomerPhone,
+                                  "Số điện thoại",
+                                  new { @class = "form-label" })
+
+                    @Html.TextBoxFor(m => m.CustomerPhone,
+                                  new
+                                  {
+                                      @class = "form-control",
+                                      @readonly = "readonly"
+                                  })
+
+                    @Html.ValidationMessageFor(
+                                  m => m.CustomerPhone, "",
+                                  new { @class = "text-danger small" })
+                </div>
+
+                <div class="mb-0">
+                    @Html.LabelFor(m => m.ShippingAddress,
+                                  "Địa chỉ nhận xe",
+                                  new { @class = "form-label" })
+
+                    @Html.TextAreaFor(m => m.ShippingAddress,
+                                  new
+                                  {
+                                      @class = "form-control",
+                                      rows = "3",
+                                      placeholder = "Nhập địa chỉ nhận xe",
+                                      required = "required"
+                                  })
+
+                    @Html.ValidationMessageFor(
+                                  m => m.ShippingAddress, "",
+                                  new { @class = "text-danger small" })
+                </div>
+            </section>
+
+            <section class="checkout-box mt-4">
+                <h2>Phương thức thanh toán</h2>
+
+                <label class="payment-option" for="paymentCod">
+                    @Html.RadioButtonFor(
+                                  m => m.PaymentMethod,
+                                  "COD",
+                                  new { id = "paymentCod" })
+
+                    <span>
+                        <strong>Thanh toán khi nhận xe</strong>
+                        <small>Thanh toán khi nhận bàn giao xe.</small>
+                    </span>
+                </label>
+
+                <label class="payment-option" for="paymentBank">
+                    @Html.RadioButtonFor(
+                                  m => m.PaymentMethod,
+                                  "BANK",
+                                  new { id = "paymentBank" })
+
+                    <span>
+                        <strong>Chuyển khoản ngân hàng</strong>
+                        <small>
+                            Sau khi đặt hàng, liên hệ cửa hàng để nhận
+                            thông tin chuyển khoản theo mã đơn.
+                        </small>
+                    </span>
+                </label>
+
+                @Html.ValidationMessageFor(
+                              m => m.PaymentMethod, "",
+                              new { @class = "text-danger small" })
+            </section>
+        </div>
+
+        <div class="col-md-5">
+            <section class="checkout-box">
+                <h2>Đơn hàng của bạn</h2>
+
+                @foreach (var item in Model.Items)
+                {
+                    <div class="checkout-item">
+                        <div>
+                            <strong>@item.ProductName</strong>
+                            <small>Số lượng: @item.Quantity</small>
+                        </div>
+
+                        <div class="checkout-item-price">
+                            @string.Format(vi, "{0:N0}", item.TotalPrice)
+                            <small>VNĐ</small>
+                        </div>
+                    </div>
+                }
+
+                <div class="checkout-total">
+                    <span>Tổng thanh toán</span>
+
+                    <strong>
+                        @string.Format(vi, "{0:N0}", Model.TotalAmount)
+                        <small>VNĐ</small>
+                    </strong>
+                </div>
+
+                <button type="submit"
+                        class="lux-button w-100 mt-4">
+                    Xác nhận đặt hàng
+                </button>
+
+                <a class="btn btn-outline-secondary w-100 mt-2"
+                   href="@Url.Action("Index", "Cart", new { area = "" })">
+                    Quay lại giỏ hàng
+                </a>
+
+                <p class="checkout-note">
+                    Đơn hàng được ghi nhận sau khi bạn bấm xác nhận.
+                    Chọn phương thức thanh toán không đồng nghĩa
+                    đơn đã được thanh toán.
+                </p>
+            </section>
+        </div>
+    </div>
+}

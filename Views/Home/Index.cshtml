@@ -1,0 +1,486 @@
+﻿@model IEnumerable<KTBEE_NguyenHoangAnh.Models.Product>
+@using System
+@using System.Linq
+@using System.Globalization
+
+@{
+    ViewBag.Title = "Trang chủ";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var cars = Model.ToList();
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+@functions {
+    public string CarImage(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        string image = value.Trim();
+
+        if (image.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+            image.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+        {
+            return image;
+        }
+
+        if (image.StartsWith("~/"))
+        {
+            return Url.Content(image);
+        }
+
+        if (image.StartsWith("/"))
+        {
+            return image;
+        }
+
+        return Url.Content("~/Images/cars/" + image);
+    }
+}
+
+@section styles {
+    <style>
+        /* Tìm kiếm phía trên banner */
+        .search-above-banner {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .collection-search {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            align-items: center;
+            gap: 6px;
+            width: 100%;
+            max-width: 700px;
+            margin: 0;
+            padding: 6px;
+            border: 1px solid #e5dfd5;
+            border-radius: 40px;
+            background: white;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+        }
+
+            .collection-search input {
+                flex: 1;
+                width: 0;
+                min-width: 0;
+                padding: 12px 18px;
+                border: 0;
+                border-radius: 30px;
+                background: transparent;
+                font-size: 14px;
+            }
+
+                .collection-search input:focus {
+                    box-shadow: none;
+                    outline: none;
+                }
+
+            .collection-search:focus-within {
+                border-color: #b28b50;
+                box-shadow: 0 0 0 3px rgba(178, 139, 80, 0.12);
+            }
+
+            .collection-search .lux-button {
+                flex-shrink: 0;
+                padding: 12px 24px;
+                border-radius: 30px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
+
+        /* Banner */
+        .lux-hero {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            min-height: 540px;
+            padding: 32px;
+            overflow: hidden;
+            border-radius: 18px;
+            background-color: #17191b;
+            background-image: linear-gradient( 180deg, rgba(0, 0, 0, 0.02) 35%, rgba(0, 0, 0, 0.60) 100% ), url('https://a.storyblok.com/f/338913/1920x1080/05a7f7bd1f/16-9_magazine_2022_eirik_halvorsen_porsche_experience_norway_1920x1080.jpg/m/1290x725/filters:format(webp):quality(45)');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 0 16px 40px rgba(25, 25, 25, 0.10);
+        }
+
+            .lux-hero .lux-button {
+                padding: 15px 24px;
+                border: 1px solid rgba(255, 255, 255, 0.65);
+                border-radius: 40px;
+                background: rgba(20, 20, 20, 0.35);
+                backdrop-filter: blur(12px);
+                color: white;
+                font-size: 14px;
+                letter-spacing: 0.3px;
+                transition: background 0.2s, color 0.2s;
+            }
+
+                .lux-hero .lux-button:hover,
+                .lux-hero .lux-button:focus-visible {
+                    border-color: #d4b47c;
+                    background: #d4b47c;
+                    color: #17191b;
+                }
+
+        /* Bộ sưu tập */
+        #collection {
+            scroll-margin-top: 24px;
+        }
+
+        .collection-heading {
+            margin: 48px 0 18px;
+        }
+
+        .collection-label {
+            margin-bottom: 10px;
+            color: #92713d;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 3px;
+        }
+
+        .collection-heading h2 {
+            margin: 0;
+            font-size: clamp(27px, 3vw, 38px);
+            font-weight: 600;
+            letter-spacing: -1px;
+        }
+
+        .collection-count {
+            margin-bottom: 24px;
+            color: #777;
+            font-size: 14px;
+        }
+
+            .collection-count a {
+                color: #806133;
+            }
+
+        /* Thẻ xe */
+        .car-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow: hidden;
+            border: 1px solid #e7e2d9;
+            border-radius: 14px;
+            background: white;
+            box-shadow: 0 5px 18px rgba(0, 0, 0, 0.025);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+
+            .car-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 18px 35px rgba(0, 0, 0, 0.09);
+            }
+
+        .car-photo {
+            display: flex;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            height: 240px;
+            overflow: hidden;
+            background: #eae7e1;
+            color: #777;
+        }
+
+            .car-photo img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.4s;
+            }
+
+            .car-photo [hidden] {
+                display: none !important;
+            }
+
+        .car-card:hover .car-photo img {
+            transform: scale(1.04);
+        }
+
+        .car-content {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            padding: 24px;
+        }
+
+        .car-brand {
+            margin-bottom: 8px;
+            color: #92713d;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+        }
+
+        .car-name {
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .car-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 0 0 22px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eeeae3;
+        }
+
+            .car-specs dt {
+                margin-bottom: 4px;
+                color: #8c8982;
+                font-size: 10px;
+                font-weight: 400;
+                letter-spacing: 0.8px;
+            }
+
+            .car-specs dd {
+                margin: 0;
+                color: #383838;
+                font-size: 13px;
+                overflow-wrap: anywhere;
+            }
+
+        .car-price {
+            margin-top: auto;
+            margin-bottom: 18px;
+            color: #252525;
+            font-size: 23px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+            .car-price small {
+                color: #8a6d3b;
+                font-size: 12px;
+            }
+
+        .car-detail {
+            display: block;
+            padding: 12px;
+            border: 1px solid #ded6c8;
+            border-radius: 8px;
+            color: #6f542e;
+            text-align: center;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.2s, color 0.2s;
+        }
+
+            .car-detail:hover,
+            .car-detail:focus-visible {
+                border-color: #202224;
+                background: #202224;
+                color: white;
+            }
+
+        .collection-empty {
+            padding: 40px 24px;
+            border: 1px solid #e4dfd6;
+            border-radius: 14px;
+            background: white;
+            text-align: center;
+        }
+
+        @@media (max-width: 767px) {
+            .lux-hero {
+                min-height: 420px;
+                padding: 24px;
+                border-radius: 14px;
+            }
+
+            .collection-heading {
+                margin-top: 36px;
+            }
+        }
+
+        @@media (max-width: 480px) {
+            .lux-hero {
+                min-height: 350px;
+                padding: 20px;
+            }
+
+                .lux-hero .lux-button {
+                    padding: 13px 18px;
+                    font-size: 13px;
+                }
+
+            .collection-search input {
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .collection-search .lux-button {
+                padding: 10px 15px;
+                font-size: 13px;
+            }
+        }
+    </style>
+}
+
+<div class="search-above-banner">
+    @using (Html.BeginForm(
+        "Index",
+        "Home",
+        new { area = "" },
+        FormMethod.Get,
+        new { @class = "collection-search", role = "search" }))
+    {
+        <input type="search"
+               name="searchTerm"
+               class="form-control"
+               value="@ViewBag.SearchTerm"
+               placeholder="Tìm tên xe hoặc hãng..."
+               aria-label="Tìm tên xe hoặc hãng" />
+
+        <button type="submit" class="lux-button">
+            Tìm kiếm
+        </button>
+    }
+</div>
+
+<section class="lux-hero" aria-label="Bộ sưu tập LuxuryAuto">
+    <a href="#collection" class="lux-button">
+        Khám phá bộ sưu tập →
+    </a>
+</section>
+
+<section id="collection">
+    <div class="collection-heading">
+        <div class="collection-label">BỘ SƯU TẬP</div>
+        <h2>Tìm chiếc xe của bạn</h2>
+    </div>
+
+    <p class="collection-count">
+        @cars.Count mẫu xe
+
+        @if (!string.IsNullOrWhiteSpace(
+            Convert.ToString(ViewBag.SearchTerm)))
+        {
+            <span>
+                · Kết quả cho “@ViewBag.SearchTerm”
+                · <a href="@Url.Action("Index", "Home", new { area = "" })">
+                    Xem tất cả
+                </a>
+            </span>
+        }
+    </p>
+
+    <div class="row g-4">
+        @foreach (var car in cars)
+        {
+            string imageUrl = CarImage(car.ProductImage);
+
+            <div class="col-12 col-md-6 col-xl-4">
+                <article class="car-card">
+                    <div class="car-photo">
+                        @if (!string.IsNullOrWhiteSpace(imageUrl))
+                        {
+                            <img src="@imageUrl"
+                                 alt="@car.ProductName"
+                                 loading="lazy"
+                                 onerror="this.hidden=true; this.nextElementSibling.hidden=false;" />
+
+                            <span hidden>Đang cập nhật ảnh</span>
+                        }
+                        else
+                        {
+                            <span>Đang cập nhật ảnh</span>
+                        }
+                    </div>
+
+                    <div class="car-content">
+                        <div class="car-brand">
+                            @(car.Category != null
+                                ? car.Category.CategoryName
+                                : "LuxuryAuto")
+                        </div>
+
+                        <h3 class="car-name">@car.ProductName</h3>
+
+                        <dl class="car-specs">
+                            <div>
+                                <dt>NĂM SẢN XUẤT</dt>
+                                <dd>
+                                    @(car.ModelYear.HasValue
+                                        ? car.ModelYear.Value.ToString()
+                                        : "Đang cập nhật")
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt>ĐỘNG CƠ</dt>
+                                <dd>
+                                    @(string.IsNullOrWhiteSpace(car.Engine)
+                                        ? "Đang cập nhật"
+                                        : car.Engine)
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt>HỘP SỐ</dt>
+                                <dd>
+                                    @(string.IsNullOrWhiteSpace(car.Transmission)
+                                        ? "Đang cập nhật"
+                                        : car.Transmission)
+                                </dd>
+                            </div>
+
+                            <div>
+                                <dt>MÀU SẮC</dt>
+                                <dd>
+                                    @(string.IsNullOrWhiteSpace(car.CarColor)
+                                        ? "Đang cập nhật"
+                                        : car.CarColor)
+                                </dd>
+                            </div>
+                        </dl>
+
+                        <div class="car-price">
+                            @string.Format(vi, "{0:N0}", car.ProductPrice)
+                            <small>VNĐ</small>
+                        </div>
+
+                        <a class="car-detail"
+                           href="@Url.Action("Details", "Home",
+                               new { area = "", id = car.ProductID })">
+                            Khám phá chi tiết →
+                        </a>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+
+    @if (cars.Count == 0)
+    {
+        <div class="collection-empty">
+            <h4>Chưa tìm thấy xe phù hợp</h4>
+
+            <p class="text-muted">
+                Bạn thử tìm bằng tên xe hoặc hãng khác nhé.
+            </p>
+
+            <a class="lux-button"
+               href="@Url.Action("Index", "Home", new { area = "" })">
+                Xem tất cả xe
+            </a>
+        </div>
+    }
+</section>

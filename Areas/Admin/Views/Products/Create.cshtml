@@ -1,0 +1,166 @@
+﻿
+@model KTBEE_NguyenHoangAnh.Models.Product
+
+@{
+    ViewBag.Title = "Thêm xe mới";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container mt-4 mb-5">
+    <h2 class="mb-4">Thêm sản phẩm mới</h2>
+
+    @using (Html.BeginForm(
+        "Create", "Products",
+        new { area = "Admin" },
+        FormMethod.Post,
+        new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(true, "",
+                 new { @class = "text-danger" })
+
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+                        <label class="form-label">Tên xe</label>
+                        @Html.TextBoxFor(m => m.ProductName,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     placeholder = "Nhập tên xe"
+                                 })
+                        @Html.ValidationMessageFor(
+                                 m => m.ProductName, "",
+                                 new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Hãng xe</label>
+                        @Html.DropDownList(
+                                 "CategoryID",
+                                 null,
+                                 "-- Chọn hãng xe --",
+                                 new { @class = "form-select" })
+                        @Html.ValidationMessageFor(
+                                 m => m.CategoryID, "",
+                                 new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Giá bán (VNĐ)</label>
+                        @Html.TextBoxFor(m => m.ProductPrice,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     type = "number",
+                                     min = "1",
+                                     step = "1"
+                                 })
+                        @Html.ValidationMessageFor(
+                                 m => m.ProductPrice, "",
+                                 new { @class = "text-danger" })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Năm sản xuất</label>
+                        @Html.TextBoxFor(m => m.ModelYear,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     type = "number",
+                                     min = "1900",
+                                     max = "2100"
+                                 })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Màu sắc</label>
+                        @Html.TextBoxFor(m => m.CarColor,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     placeholder = "Đen, trắng, đỏ..."
+                                 })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Động cơ</label>
+                        @Html.TextBoxFor(m => m.Engine,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     placeholder = "2.0L Turbo..."
+                                 })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Hộp số</label>
+                        @Html.TextBoxFor(m => m.Transmission,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     placeholder = "Tự động..."
+                                 })
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Số lượng xe</label>
+                        <input type="number"
+                               name="quantity"
+                               class="form-control"
+                               min="0"
+                               value="@(ViewBag.Quantity ?? 0)" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Chọn ảnh từ máy tính</label>
+                        <input type="file"
+                               name="UploadImage"
+                               class="form-control"
+                               accept=".jpg,.jpeg,.png,.webp" />
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Hoặc dán link ảnh</label>
+                        @Html.TextBoxFor(m => m.ProductImage,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     placeholder = "https://example.com/car.jpg"
+                                 })
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Mô tả xe</label>
+                        @Html.TextAreaFor(m => m.ProductDescription,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     rows = "5",
+                                     placeholder = "Nhập mô tả chi tiết xe..."
+                                 })
+                    </div>
+
+                </div>
+
+                <div class="mt-4 d-flex gap-2">
+                    <button type="submit"
+                            class="btn btn-success">
+                        Thêm sản phẩm
+                    </button>
+
+                    <a href="@Url.Action("Index", "Products",
+                             new { area = "Admin" })"
+                       class="btn btn-secondary">
+                        Quay lại
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    }
+</div>

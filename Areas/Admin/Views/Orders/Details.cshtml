@@ -1,0 +1,190 @@
+﻿
+@model KTBEE_NguyenHoangAnh.Models.Order
+@using System.Linq
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    bool isCancelled = Model.OrderStatus == "Đã hủy";
+    bool isDelivered = Model.OrderStatus == "Đã giao";
+}
+
+<div class="container-fluid my-4">
+    <h2>Chi tiết đơn hàng #@Model.OrderID</h2>
+    <hr />
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>Thông tin khách hàng</h5>
+                </div>
+
+                <div class="card-body">
+                    <p>
+                        <strong>Họ tên:</strong>
+                        @(Model.Customer != null
+                            ? Model.Customer.CustomerName
+                            : "Không xác định")
+                    </p>
+
+                    <p>
+                        <strong>Số điện thoại:</strong>
+                        @(Model.Customer != null
+                            ? Model.Customer.CustomerPhone
+                            : "")
+                    </p>
+
+                    <p>
+                        <strong>Địa chỉ nhận xe:</strong>
+                        @Model.ShippingAddress
+                    </p>
+
+                    <p>
+                        <strong>Ngày đặt:</strong>
+                        @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5>Trạng thái đơn hàng</h5>
+                </div>
+
+                <div class="card-body">
+                    <p>
+                        <strong>Trạng thái:</strong>
+                        @Model.OrderStatus
+                    </p>
+
+                    <p>
+                        <strong>Thanh toán:</strong>
+                        @Model.PaymentStatus
+                    </p>
+
+                    <p>
+                        <strong>Phương thức:</strong>
+                        @Model.PaymentMethod
+                    </p>
+
+                    @if (!isCancelled && !isDelivered)
+                    {
+                        using (Html.BeginForm(
+                            "UpdateStatus", "Orders",
+                            new { area = "Admin" },
+                            FormMethod.Post))
+                        {
+                            @Html.AntiForgeryToken()
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@Model.OrderID" />
+
+                            <div class="mb-3">
+                                <label class="form-label">
+                                    Chuyển trạng thái
+                                </label>
+
+                                <select name="status"
+                                        class="form-select"
+                                        required>
+                                    <option value="Đang xử lý">
+                                        Đang xử lý
+                                    </option>
+                                    <option value="Đang vận chuyển">
+                                        Đang vận chuyển
+                                    </option>
+                                    <option value="Đã giao">
+                                        Đã giao
+                                    </option>
+                                    <option value="Đã hủy">
+                                        Đã hủy
+                                    </option>
+                                </select>
+                            </div>
+
+                            <button type="submit"
+                                    class="btn btn-success"
+                                    onclick="return confirm('Xác nhận cập nhật trạng thái đơn hàng?');">
+                                Cập nhật trạng thái
+                            </button>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted">
+                            Đơn hàng đã kết thúc xử lý.
+                        </p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mt-4">Danh sách xe đã đặt</h4>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã xe</th>
+                    <th>Tên xe</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.OrderDetails)
+                {
+                    <tr>
+                        <td>@item.ProductID</td>
+                        <td>
+                            @(item.Product != null
+                                ? item.Product.ProductName
+                                : "Sản phẩm không tồn tại")
+                        </td>
+                        <td>@item.Quantity</td>
+                        <td>
+                            @String.Format("{0:N0}", item.UnitPrice) VNĐ
+                        </td>
+                        <td>
+                            @String.Format("{0:N0}",
+                                     item.UnitPrice * item.Quantity) VNĐ
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <h4 class="text-danger text-end">
+        Tổng tiền:
+        @String.Format("{0:N0}", Model.TotalAmount) VNĐ
+    </h4>
+
+    <a href="@Url.Action("Index", "Orders",
+             new { area = "Admin" })"
+       class="btn btn-secondary mt-3">
+        Quay lại danh sách
+    </a>
+</div>

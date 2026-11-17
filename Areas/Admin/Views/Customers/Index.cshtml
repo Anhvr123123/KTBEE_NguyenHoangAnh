@@ -1,0 +1,85 @@
+﻿@model System.Collections.Generic.List<KTBEE_NguyenHoangAnh.Models.Customer>
+
+@{
+    ViewBag.Title = "Danh sách khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h2 class="mb-0">Danh sách khách hàng</h2>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "Admin", new { area = "Admin" })">
+        Về thống kê
+    </a>
+</div>
+
+@using (Html.BeginForm(
+    "Index",
+    "Customers",
+    new { area = "Admin" },
+    FormMethod.Get,
+    new { @class = "mb-4" }))
+{
+    <div class="input-group">
+        <input type="search"
+               name="searchTerm"
+               class="form-control"
+               value="@ViewBag.SearchTerm"
+               placeholder="Tìm tên, số điện thoại, email, tài khoản..."
+               aria-label="Tìm khách hàng" />
+
+        <button type="submit" class="btn btn-primary">
+            Tìm kiếm
+        </button>
+
+        <a class="btn btn-outline-secondary"
+           href="@Url.Action("Index", "Customers", new { area = "Admin" })">
+            Tất cả
+        </a>
+    </div>
+}
+
+<p class="text-muted">
+    Số khách hàng hiển thị: <strong>@Model.Count</strong>
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>Mã KH</th>
+                <th>Họ tên</th>
+                <th>Tài khoản</th>
+                <th>Số điện thoại</th>
+                <th>Email</th>
+                <th>Địa chỉ</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        Không tìm thấy khách hàng.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var customer in Model)
+                {
+                    <tr>
+                        <td>@customer.CustomerID</td>
+                        <td>@customer.CustomerName</td>
+                        <td>@customer.Username</td>
+                        <td>@customer.CustomerPhone</td>
+                        <td>@customer.CustomerEmail</td>
+                        <td>@customer.CustomerAddress</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

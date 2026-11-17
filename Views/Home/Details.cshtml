@@ -1,0 +1,354 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.Product
+@using System
+@using System.Linq
+@using System.Globalization
+
+@{
+    ViewBag.Title = Model.ProductName;
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    string imageUrl = "";
+
+    if (!string.IsNullOrWhiteSpace(Model.ProductImage))
+    {
+        string image = Model.ProductImage.Trim();
+
+        if (image.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+            image.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+        {
+            imageUrl = image;
+        }
+        else if (image.StartsWith("~/"))
+        {
+            imageUrl = Url.Content(image);
+        }
+        else if (image.StartsWith("/"))
+        {
+            imageUrl = image;
+        }
+        else
+        {
+            imageUrl = Url.Content("~/Images/cars/" + image);
+        }
+    }
+
+    var stock = Model.ProductDetails.FirstOrDefault();
+
+    int available = stock == null
+        ? 0
+        : Math.Max(0, stock.Quantity - stock.QuantitySold);
+}
+
+@section styles {
+    <style>
+        .detail-back {
+            display: inline-block;
+            margin-bottom: 22px;
+            color: #756347;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+            .detail-back:hover {
+                color: #252525;
+            }
+
+        .detail-panel {
+            padding: 28px;
+            border: 1px solid #e6e0d6;
+            border-radius: 14px;
+            background: white;
+        }
+
+        .detail-photo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            aspect-ratio: 4 / 3;
+            border-radius: 10px;
+            background: #f0ede7;
+            color: #777;
+        }
+
+            .detail-photo img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+            .detail-photo [hidden] {
+                display: none !important;
+            }
+
+        .detail-brand {
+            margin-bottom: 10px;
+            color: #92713d;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .detail-title {
+            margin-bottom: 14px;
+            font-size: clamp(26px, 3vw, 36px);
+            font-weight: 600;
+            letter-spacing: -0.7px;
+        }
+
+        .detail-price {
+            margin-bottom: 24px;
+            color: #8a6835;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+            .detail-price small {
+                font-size: 14px;
+            }
+
+        .detail-specs {
+            margin-bottom: 24px;
+        }
+
+        .detail-spec-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 12px 0;
+            border-bottom: 1px solid #eeeae3;
+        }
+
+            .detail-spec-row dt {
+                color: #777;
+                font-size: 14px;
+                font-weight: 400;
+            }
+
+            .detail-spec-row dd {
+                margin: 0;
+                color: #252525;
+                font-size: 14px;
+                text-align: right;
+                overflow-wrap: anywhere;
+            }
+
+        .detail-description {
+            margin-top: 24px;
+            padding-top: 22px;
+            border-top: 1px solid #eeeae3;
+        }
+
+            .detail-description h2 {
+                margin-bottom: 12px;
+                font-size: 18px;
+                font-weight: 600;
+            }
+
+            .detail-description p {
+                margin-bottom: 0;
+                color: #666;
+                font-size: 14px;
+                line-height: 1.8;
+                white-space: pre-line;
+                overflow-wrap: anywhere;
+            }
+
+        .detail-buy {
+            display: flex;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+            .detail-buy label {
+                display: block;
+                margin-bottom: 8px;
+                color: #666;
+                font-size: 13px;
+            }
+
+            .detail-buy input {
+                width: 100px;
+                height: 46px;
+                border-color: #ded6c8;
+            }
+
+            .detail-buy .lux-button {
+                min-height: 46px;
+                font-size: 14px;
+            }
+
+        .detail-stock {
+            margin-bottom: 18px;
+            color: #67735c;
+            font-size: 13px;
+        }
+
+        .detail-sold-out {
+            padding: 12px 20px;
+            border: 0;
+            border-radius: 6px;
+            background: #e9e6e0;
+            color: #777;
+        }
+
+        @@media (max-width: 767px) {
+            .detail-panel {
+                padding: 20px;
+            }
+
+            .detail-price {
+                font-size: 24px;
+            }
+        }
+    </style>
+}
+
+<a class="detail-back"
+   href="@Url.Action("Index", "Home", new { area = "" })">
+    ← Quay lại bộ sưu tập
+</a>
+
+<div class="detail-panel">
+    <div class="row g-4 g-lg-5">
+        <div class="col-md-6">
+            <div class="detail-photo">
+                @if (!string.IsNullOrWhiteSpace(imageUrl))
+                {
+                    <img src="@imageUrl"
+                         alt="@Model.ProductName"
+                         onerror="this.hidden=true; this.nextElementSibling.hidden=false;" />
+
+                    <span hidden>Đang cập nhật ảnh</span>
+                }
+                else
+                {
+                    <span>Đang cập nhật ảnh</span>
+                }
+            </div>
+
+            <div class="detail-description">
+                <h2>Mô tả xe</h2>
+                <p>@(string.IsNullOrWhiteSpace(Model.ProductDescription) ? "Thông tin đang được cập nhật." : Model.ProductDescription.Trim())</p>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="detail-brand">
+                @(Model.Category != null
+                    ? Model.Category.CategoryName
+                    : "LuxuryAuto")
+            </div>
+
+            <h1 class="detail-title">@Model.ProductName</h1>
+
+            <div class="detail-price">
+                @string.Format(vi, "{0:N0}", Model.ProductPrice)
+                <small>VNĐ</small>
+            </div>
+
+            <dl class="detail-specs">
+                <div class="detail-spec-row">
+                    <dt>Hãng xe</dt>
+                    <dd>
+                        @(Model.Category != null
+                            ? Model.Category.CategoryName
+                            : "Đang cập nhật")
+                    </dd>
+                </div>
+
+                <div class="detail-spec-row">
+                    <dt>Năm sản xuất</dt>
+                    <dd>
+                        @(Model.ModelYear.HasValue
+                            ? Model.ModelYear.Value.ToString()
+                            : "Đang cập nhật")
+                    </dd>
+                </div>
+
+                <div class="detail-spec-row">
+                    <dt>Màu sắc</dt>
+                    <dd>
+                        @(string.IsNullOrWhiteSpace(Model.CarColor)
+                            ? "Đang cập nhật"
+                            : Model.CarColor)
+                    </dd>
+                </div>
+
+                <div class="detail-spec-row">
+                    <dt>Động cơ</dt>
+                    <dd>
+                        @(string.IsNullOrWhiteSpace(Model.Engine)
+                            ? "Đang cập nhật"
+                            : Model.Engine)
+                    </dd>
+                </div>
+
+                <div class="detail-spec-row">
+                    <dt>Hộp số</dt>
+                    <dd>
+                        @(string.IsNullOrWhiteSpace(Model.Transmission)
+                            ? "Đang cập nhật"
+                            : Model.Transmission)
+                    </dd>
+                </div>
+            </dl>
+
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger" role="alert">
+                    @TempData["Error"]
+                </div>
+            }
+
+            @if (available > 0)
+            {
+                <p class="detail-stock">
+                    Còn @available xe trong kho
+                </p>
+
+                using (Html.BeginForm(
+                    "Add",
+                    "Cart",
+                    new { area = "" },
+                    FormMethod.Post,
+                    new { @class = "detail-buy" }))
+                {
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="id"
+                           value="@Model.ProductID" />
+
+                    <div>
+                        <label for="buyQuantity">Số lượng</label>
+
+                        <input type="number"
+                               id="buyQuantity"
+                               name="quantity"
+                               class="form-control"
+                               value="1"
+                               min="1"
+                               max="@available"
+                               required />
+                    </div>
+
+                    <button type="submit" class="lux-button">
+                        Thêm vào giỏ hàng
+                    </button>
+                }
+            }
+            else
+            {
+                <button type="button"
+                        class="detail-sold-out"
+                        disabled>
+                    Xe hiện đã hết hàng
+                </button>
+            }
+        </div>
+    </div>
+</div>

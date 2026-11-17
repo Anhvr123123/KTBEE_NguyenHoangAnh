@@ -1,0 +1,50 @@
+﻿
+@model KTBEE_NguyenHoangAnh.Models.Product
+
+@{
+    ViewBag.Title = "Xóa xe";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Xóa xe</h2>
+<hr />
+
+<div class="alert alert-warning">
+    Bạn có chắc chắn muốn xóa xe này không?
+    Xe đã phát sinh đơn hàng sẽ không được phép xóa.
+</div>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Mã xe</th>
+        <td>@Model.ProductID</td>
+    </tr>
+    <tr>
+        <th>Tên xe</th>
+        <td>@Model.ProductName</td>
+    </tr>
+    <tr>
+        <th>Hãng xe</th>
+        <td>@Model.Category.CategoryName</td>
+    </tr>
+    <tr>
+        <th>Giá bán</th>
+        <td>@String.Format("{0:N0}", Model.ProductPrice) VNĐ</td>
+    </tr>
+</table>
+
+@using (Html.BeginForm("Delete", "Products",
+    new { area = "Admin", id = Model.ProductID },
+    FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <button type="submit" class="btn btn-danger">
+        Xác nhận xóa
+    </button>
+
+    <a href="@Url.Action("Index")"
+       class="btn btn-secondary">
+        Quay lại
+    </a>
+}

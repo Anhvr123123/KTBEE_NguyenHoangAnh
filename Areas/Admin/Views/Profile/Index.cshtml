@@ -1,0 +1,190 @@
+﻿@using System
+
+@{
+    ViewBag.Title = "Thông tin Admin";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    string username = Convert.ToString(ViewBag.Username);
+    string initial = string.IsNullOrWhiteSpace(username)
+        ? "A"
+        : username.Substring(0, 1).ToUpperInvariant();
+}
+
+<style>
+    .profile-card {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 28px;
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 12px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .profile-avatar-box {
+        display: flex;
+        justify-content: center;
+        margin: 24px 0;
+    }
+
+    .profile-avatar,
+    .profile-placeholder {
+        width: 150px;
+        height: 150px;
+        border: 4px solid #e9ecef;
+        border-radius: 50%;
+    }
+
+    .profile-avatar {
+        object-fit: cover;
+    }
+
+    .profile-placeholder {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #212529;
+        color: #e0aa3e;
+        font-size: 54px;
+        font-weight: bold;
+    }
+
+    .profile-avatar-box [hidden] {
+        display: none !important;
+    }
+</style>
+
+<div class="profile-card">
+    <h3 class="mb-2">Thông tin Admin</h3>
+    <p class="text-muted">Thông tin tài khoản và ảnh đại diện của bạn.</p>
+
+    @if (TempData["ProfileError"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["ProfileError"]
+        </div>
+    }
+
+    <div class="profile-avatar-box">
+        <img id="avatarPreview"
+             class="profile-avatar"
+             src="@Url.Action("Avatar", "Profile", new { area = "Admin" })"
+             alt="Ảnh đại diện"
+             onerror="this.hidden = true; document.getElementById('avatarPlaceholder').hidden = false;" />
+
+        <div id="avatarPlaceholder"
+             class="profile-placeholder"
+             hidden>
+            @initial
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label for="profileUsername" class="form-label">
+            Tên tài khoản
+        </label>
+
+        <input id="profileUsername"
+               class="form-control"
+               type="text"
+               value="@username"
+               readonly />
+    </div>
+
+    <div class="mb-4">
+        <label for="profileRole" class="form-label">
+            Vai trò
+        </label>
+
+        <input id="profileRole"
+               class="form-control"
+               type="text"
+               value="Quản trị viên"
+               readonly />
+    </div>
+
+    @using (Html.BeginForm(
+        "UpdateAvatar",
+        "Profile",
+        new { area = "Admin" },
+        FormMethod.Post,
+        new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="mb-4">
+            <label for="avatar" class="form-label">
+                Chọn ảnh đại diện
+            </label>
+
+            <input id="avatar"
+                   name="avatar"
+                   type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/png"
+                   required />
+
+            <div class="form-text">
+                Ảnh JPG hoặc PNG, dung lượng tối đa 2 MB.
+            </div>
+
+            <div id="avatarError"
+                 class="text-danger mt-2"
+                 role="alert">
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary">
+                Lưu ảnh đại diện
+            </button>
+
+            <a class="btn btn-outline-secondary"
+               href="@Url.Action("Index", "Admin", new { area = "Admin" })">
+                Về thống kê
+            </a>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>(function () {
+            var input = document.getElementById("avatar");
+            var preview = document.getElementById("avatarPreview");
+            var placeholder = document.getElementById("avatarPlaceholder");
+            var error = document.getElementById("avatarError");
+            var previewUrl = null;
+
+            input.addEventListener("change", function () {
+                error.textContent = "";
+
+                var file = input.files[0];
+
+                if (!file) {
+                    return;
+                }
+
+                if (file.size > 2 * 1024 * 1024) {
+                    error.textContent = "Ảnh không được vượt quá 2 MB.";
+                    input.value = "";
+                    return;
+                }
+
+                if (file.type !== "image/jpeg" &&
+                    file.type !== "image/png") {
+                    error.textContent = "Vui lòng chọn ảnh JPG hoặc PNG.";
+                    input.value = "";
+                    return;
+                }
+
+                if (previewUrl) {
+                    URL.revokeObjectURL(previewUrl);
+                }
+
+                previewUrl = URL.createObjectURL(file);
+                preview.src = previewUrl;
+                preview.hidden = false;
+                placeholder.hidden = true;
+            });
+        })();</script>
+}

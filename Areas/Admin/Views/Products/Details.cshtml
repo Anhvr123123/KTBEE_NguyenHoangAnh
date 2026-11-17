@@ -1,0 +1,102 @@
+﻿
+@model KTBEE_NguyenHoangAnh.Models.Product
+@using System.Linq
+
+@{
+    ViewBag.Title = "Chi tiết xe";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var detail = Model.ProductDetails.FirstOrDefault();
+    int quantity = detail != null ? detail.Quantity : 0;
+    int sold = detail != null ? detail.QuantitySold : 0;
+}
+
+<h2>Chi tiết xe</h2>
+<hr />
+
+<div class="row">
+
+    <div class="col-md-5 mb-3">
+        <img src="@Model.ProductImage"
+             class="img-fluid img-thumbnail"
+             alt="@Model.ProductName"
+             onerror="this.style.display='none';" />
+    </div>
+
+    <div class="col-md-7">
+        <table class="table table-bordered">
+
+            <tr>
+                <th>Mã xe</th>
+                <td>@Model.ProductID</td>
+            </tr>
+
+            <tr>
+                <th>Tên xe</th>
+                <td>@Model.ProductName</td>
+            </tr>
+
+            <tr>
+                <th>Hãng xe</th>
+                <td>
+                    @(Model.Category != null
+                        ? Model.Category.CategoryName : "")
+                </td>
+            </tr>
+
+            <tr>
+                <th>Giá bán</th>
+                <td>
+                    @String.Format("{0:N0}", Model.ProductPrice) VNĐ
+                </td>
+            </tr>
+
+            <tr>
+                <th>Năm sản xuất</th>
+                <td>@Model.ModelYear</td>
+            </tr>
+
+            <tr>
+                <th>Màu sắc</th>
+                <td>@Model.CarColor</td>
+            </tr>
+
+            <tr>
+                <th>Động cơ</th>
+                <td>@Model.Engine</td>
+            </tr>
+
+            <tr>
+                <th>Hộp số</th>
+                <td>@Model.Transmission</td>
+            </tr>
+
+            <tr>
+                <th>Tồn kho</th>
+                <td>@quantity</td>
+            </tr>
+
+            <tr>
+                <th>Đã bán</th>
+                <td>@sold</td>
+            </tr>
+
+            <tr>
+                <th>Mô tả</th>
+                <td>@Model.ProductDescription</td>
+            </tr>
+
+        </table>
+
+        <a href="@Url.Action("Edit", new { id = Model.ProductID })"
+           class="btn btn-warning">
+            Sửa
+        </a>
+
+        <a href="@Url.Action("Index")"
+           class="btn btn-secondary">
+            Quay lại
+        </a>
+    </div>
+
+</div>
