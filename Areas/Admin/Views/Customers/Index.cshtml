@@ -1,0 +1,108 @@
+﻿@model System.Collections.Generic.List<KTBEE_NguyenHoangAnh.Models.Customer>
+
+@{
+    ViewBag.Title = "Danh sách khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2>Danh sách khách hàng</h2>
+
+        <p class="text-muted mb-0">
+            Xem thông tin và lịch sử đặt hàng của khách hàng.
+        </p>
+    </div>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "Admin",
+           new { area = "Admin" })">
+        Về thống kê
+    </a>
+</div>
+
+@using (Html.BeginForm(
+    "Index",
+    "Customers",
+    new { area = "Admin" },
+    FormMethod.Get))
+{
+    <div class="input-group mb-4">
+        <input type="search"
+               name="searchTerm"
+               value="@ViewBag.SearchTerm"
+               class="form-control"
+               placeholder="Tìm tên, tài khoản, số điện thoại hoặc email..."
+               aria-label="Tìm khách hàng" />
+
+        <button type="submit" class="btn btn-primary">
+            Tìm kiếm
+        </button>
+
+        <a class="btn btn-outline-secondary"
+           href="@Url.Action("Index", "Customers",
+               new { area = "Admin" })">
+            Tất cả
+        </a>
+    </div>
+}
+
+<p class="text-muted">
+    Có @Model.Count khách hàng trong danh sách.
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered align-middle">
+        <thead>
+            <tr>
+                <th>Mã KH</th>
+                <th>Họ tên</th>
+                <th>Tài khoản</th>
+                <th>Số điện thoại</th>
+                <th>Email</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        Không tìm thấy khách hàng.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var customer in Model)
+                {
+                    <tr>
+                        <td>@customer.CustomerID</td>
+                        <td>@customer.CustomerName</td>
+                        <td>@customer.Username</td>
+                        <td>@customer.CustomerPhone</td>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(customer.CustomerEmail)
+                                ? "Chưa cập nhật"
+                                : customer.CustomerEmail)
+                        </td>
+
+                        <td>
+                            <a class="btn btn-primary btn-sm"
+                               href="@Url.Action("Details", "Customers",
+                                   new
+                                   {
+                                       area = "Admin",
+                                       id = customer.CustomerID
+                                   })">
+                                Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

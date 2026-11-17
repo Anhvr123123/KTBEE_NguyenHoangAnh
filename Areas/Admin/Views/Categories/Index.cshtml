@@ -1,0 +1,132 @@
+﻿@model System.Collections.Generic.List<KTBEE_NguyenHoangAnh.Models.Category>
+
+@{
+    ViewBag.Title = "Quản lý hãng xe";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2>Quản lý hãng xe</h2>
+        <p class="text-muted mb-0">
+            Danh mục hãng và số mẫu xe thuộc từng hãng.
+        </p>
+    </div>
+
+    <a class="btn btn-success"
+       href="@Url.Action("Create", "Categories",
+           new { area = "Admin" })">
+        Thêm hãng xe
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@using (Html.BeginForm(
+    "Index",
+    "Categories",
+    new { area = "Admin" },
+    FormMethod.Get))
+{
+    <div class="input-group mb-4">
+        <input type="search"
+               name="searchTerm"
+               value="@ViewBag.SearchTerm"
+               class="form-control"
+               placeholder="Tìm tên hãng xe..."
+               aria-label="Tìm hãng xe" />
+
+        <button type="submit" class="btn btn-primary">
+            Tìm kiếm
+        </button>
+
+        <a class="btn btn-outline-secondary"
+           href="@Url.Action("Index", "Categories",
+               new { area = "Admin" })">
+            Tất cả
+        </a>
+    </div>
+}
+
+<p class="text-muted">
+    Có @Model.Count hãng trong danh sách.
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered align-middle">
+        <thead>
+            <tr>
+                <th>Mã hãng</th>
+                <th>Tên hãng</th>
+                <th>Mô tả</th>
+                <th>Số mẫu xe</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" class="text-center py-4">
+                        Không tìm thấy hãng xe.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var category in Model)
+                {
+                    <tr>
+                        <td>@category.CategoryID</td>
+
+                        <td class="fw-semibold">
+                            @category.CategoryName
+                        </td>
+
+                        <td>
+                            @(string.IsNullOrWhiteSpace(category.Description)
+                                ? "Chưa có mô tả"
+                                : category.Description)
+                        </td>
+
+                        <td>
+                            <span class="badge bg-secondary">
+                                @category.Products.Count
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-warning btn-sm"
+                                   href="@Url.Action("Edit", "Categories",
+                                       new
+                                       {
+                                           area = "Admin",
+                                           id = category.CategoryID
+                                       })">
+                                    Sửa
+                                </a>
+
+                                <a class="btn btn-danger btn-sm"
+                                   href="@Url.Action("Delete", "Categories",
+                                       new
+                                       {
+                                           area = "Admin",
+                                           id = category.CategoryID
+                                       })">
+                                    Xóa
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

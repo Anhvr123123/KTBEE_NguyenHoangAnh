@@ -1,0 +1,82 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.InventoryViewModel
+
+@{
+    ViewBag.Title = "Quản lý kho";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2>Quản lý kho xe</h2>
+
+        <p class="text-muted mb-0">
+            Còn lại = tổng số lượng − số đã bán/giữ cho đơn hàng.
+        </p>
+    </div>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "Products",
+           new { area = "Admin" })">
+        Danh sách sản phẩm
+    </a>
+</div>
+
+@using (Html.BeginForm(
+    "Index",
+    "Inventory",
+    new { area = "Admin" },
+    FormMethod.Get))
+{
+    <div class="input-group mb-4">
+        <input type="search"
+               name="searchTerm"
+               value="@Model.SearchTerm"
+               class="form-control"
+               placeholder="Tìm tên xe hoặc hãng..."
+               aria-label="Tìm xe trong kho" />
+
+        <button type="submit" class="btn btn-primary">
+            Tìm kiếm
+        </button>
+
+        <a class="btn btn-outline-secondary"
+           href="@Url.Action("Index", "Inventory",
+               new { area = "Admin" })">
+            Tất cả
+        </a>
+    </div>
+}
+
+<div class="card mb-4">
+    <div class="card-header">
+        <h5 class="mb-0">
+            Xe còn hàng
+            <span class="badge bg-success ms-2">
+                @Model.InStock.Count mẫu
+            </span>
+        </h5>
+    </div>
+
+    <div class="card-body">
+        @Html.Partial(
+                 "~/Areas/Admin/Views/Inventory/_InventoryTable.cshtml",
+                 Model.InStock)
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            Xe cần nhập
+            <span class="badge bg-secondary ms-2">
+                @Model.NeedImport.Count mẫu
+            </span>
+        </h5>
+    </div>
+
+    <div class="card-body">
+        @Html.Partial(
+                 "~/Areas/Admin/Views/Inventory/_InventoryTable.cshtml",
+                 Model.NeedImport)
+    </div>
+</div>

@@ -1,0 +1,148 @@
+﻿@model System.Collections.Generic.List<KTBEE_NguyenHoangAnh.Models.AdminUserViewModel>
+@using System
+
+@{
+    ViewBag.Title = "Quản lý tài khoản Admin";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    string currentUsername =
+        Convert.ToString(Session["Username"]);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2>Quản lý tài khoản Admin</h2>
+        <p class="text-muted mb-0">
+            Danh sách chỉ gồm tài khoản quản trị.
+        </p>
+    </div>
+
+    <a class="btn btn-success"
+       href="@Url.Action("Create", "AdminUsers",
+           new { area = "Admin" })">
+        Thêm Admin
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@using (Html.BeginForm(
+    "Index",
+    "AdminUsers",
+    new { area = "Admin" },
+    FormMethod.Get))
+{
+    <div class="input-group mb-4">
+        <input type="search"
+               name="searchTerm"
+               value="@ViewBag.SearchTerm"
+               class="form-control"
+               placeholder="Tìm tên đăng nhập..."
+               aria-label="Tìm tài khoản Admin" />
+
+        <button type="submit" class="btn btn-primary">
+            Tìm kiếm
+        </button>
+
+        <a class="btn btn-outline-secondary"
+           href="@Url.Action("Index", "AdminUsers",
+               new { area = "Admin" })">
+            Tất cả
+        </a>
+    </div>
+}
+
+<p class="text-muted">
+    Có @Model.Count tài khoản trong danh sách.
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered align-middle">
+        <thead>
+            <tr>
+                <th>Tên đăng nhập</th>
+                <th>Vai trò</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="3" class="text-center py-4">
+                        Không tìm thấy tài khoản Admin.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var user in Model)
+                {
+                    <tr>
+                        <td>
+                            @user.Username
+
+                            @if (string.Equals(
+                                user.Username,
+                                currentUsername,
+                                StringComparison.OrdinalIgnoreCase))
+                            {
+                                <span class="badge bg-secondary ms-2">
+                                    Đang dùng
+                                </span>
+                            }
+                        </td>
+
+                        <td>Quản trị viên</td>
+
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-warning btn-sm"
+                                   href="@Url.Action("Edit", "AdminUsers",
+                                       new
+                                       {
+                                           area = "Admin",
+                                           username = user.Username
+                                       })">
+                                    Sửa
+                                </a>
+
+                                @if (!string.Equals(
+                                    user.Username,
+                                    currentUsername,
+                                    StringComparison.OrdinalIgnoreCase))
+                                {
+                                    using (Html.BeginForm(
+                                        "Delete",
+                                        "AdminUsers",
+                                        new { area = "Admin" },
+                                        FormMethod.Post,
+                                        new { @class = "m-0" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="username"
+                                               value="@user.Username" />
+
+                                        <button type="submit"
+                                                class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Bạn muốn xóa tài khoản Admin này?');">
+                                            Xóa
+                                        </button>
+                                    }
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

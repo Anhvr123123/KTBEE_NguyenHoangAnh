@@ -1,0 +1,46 @@
+﻿
+@model KTBEE_NguyenHoangAnh.Models.Category
+
+@{
+    ViewBag.Title = "Xóa hãng xe";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Xóa hãng xe</h2>
+<hr />
+
+<div class="alert alert-warning">
+    Bạn có chắc chắn muốn xóa hãng xe này không?
+</div>
+
+<table class="table table-bordered">
+    <tr>
+        <th>Mã hãng</th>
+        <td>@Model.CategoryID</td>
+    </tr>
+
+    <tr>
+        <th>Tên hãng</th>
+        <td>@Model.CategoryName</td>
+    </tr>
+
+    <tr>
+        <th>Mô tả</th>
+        <td>@Model.Description</td>
+    </tr>
+</table>
+
+@using (Html.BeginForm("Delete", "Categories",
+    new { id = Model.CategoryID }, FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <button type="submit" class="btn btn-danger">
+        Xác nhận xóa
+    </button>
+
+    <a href="@Url.Action("Index")"
+       class="btn btn-secondary">
+        Quay lại
+    </a>
+}

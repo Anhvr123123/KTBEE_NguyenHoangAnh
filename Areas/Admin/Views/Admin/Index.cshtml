@@ -1,0 +1,67 @@
+﻿
+@{
+    ViewBag.Title = "Trang quản trị";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Trang quản trị LuxuryAuto</h2>
+<p>Thống kê thông tin trên Website khách hàng</p>
+
+<hr />
+
+<div class="row">
+
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>Sản phẩm</h5>
+                <h2>@ViewBag.TotalProducts</h2>
+                <a href="@Url.Action("Index", "Products", new { area = "Admin" })"
+                   class="btn btn-primary">
+                    Xem danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>Hãng xe</h5>
+                <h2>@ViewBag.TotalCategories</h2>
+                <a href="@Url.Action("Index", "Categories", new { area = "Admin" })"
+                   class="btn btn-primary">
+                    Xem danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>Khách hàng</h5>
+                <h2>@ViewBag.TotalCustomers</h2>
+
+                <a href="@Url.Action("Index", "Customers", new { area = "Admin" })"
+                   class="btn btn-primary">
+                    Xem danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <h5>Đơn hàng</h5>
+                <h2>@ViewBag.TotalOrders</h2>
+                <a href="@Url.Action("Index", "Orders", new { area = "Admin" })"
+                   class="btn btn-primary">
+                    Xem danh sách
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>

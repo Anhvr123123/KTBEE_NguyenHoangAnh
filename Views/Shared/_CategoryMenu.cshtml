@@ -1,0 +1,21 @@
+﻿@model System.Collections.Generic.List<KTBEE_NguyenHoangAnh.Models.Category>
+
+@if (Model.Count == 0)
+{
+    <span class="d-block p-3 text-muted small">
+        Chưa có danh mục
+    </span>
+}
+else
+{
+    foreach (var category in Model)
+    {
+        <a href="@Url.Action("Category", "Home", new
+           {
+               area = "",
+               id = category.CategoryID
+           })">
+            @category.CategoryName
+        </a>
+    }
+}

@@ -1,0 +1,258 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.MyOrdersViewModel
+@using System
+@using System.Linq
+@using System.Globalization
+@using KTBEE_NguyenHoangAnh.Models
+
+@{
+    ViewBag.Title = "Đơn hàng của tôi";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+@section styles {
+    <link href="@Url.Content("~/Content/LuxuryAuto/OrderFeatures.css")"
+          rel="stylesheet" />
+}
+
+<div class="orders-heading">
+    <div>
+        <h2>Đơn hàng của tôi</h2>
+        <p>Theo dõi và xem lại các đơn hàng đã đặt.</p>
+    </div>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "Home", new { area = "" })">
+        Tiếp tục xem xe
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["Success"]
+    </div>
+}
+
+@using (Html.BeginForm(
+    "Index",
+    "MyOrders",
+    new { area = "" },
+    FormMethod.Get,
+    new { @class = "orders-search" }))
+{
+    <input type="hidden"
+           name="status"
+           value="@Model.Status" />
+
+    <input type="search"
+           name="searchTerm"
+           value="@Model.SearchTerm"
+           class="form-control"
+           placeholder="Tìm mã đơn hoặc tên sản phẩm..."
+           aria-label="Tìm đơn hàng" />
+
+    <button type="submit" class="lux-button">
+        Tìm kiếm
+    </button>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "MyOrders", new { area = "" })">
+        Làm mới
+    </a>
+}
+
+<div class="orders-tabs">
+    <a class="orders-tab @(string.IsNullOrWhiteSpace(Model.Status) ? "active" : "")"
+       href="@Url.Action("Index", "MyOrders", new
+       {
+           area = "",
+           searchTerm = Model.SearchTerm
+       })">
+        Tất cả
+    </a>
+
+    @foreach (string state in OrderStates.All)
+    {
+        <a class="orders-tab @(Model.Status == state ? "active" : "")"
+           href="@Url.Action("Index", "MyOrders", new
+           {
+               area = "",
+               status = state,
+               searchTerm = Model.SearchTerm
+           })">
+            @state
+        </a>
+    }
+</div>
+
+@if (Model.TotalOrders == 0)
+{
+    <div class="orders-empty">
+        <h4>Bạn chưa có đơn hàng nào</h4>
+
+        <p>
+            Hãy đặt đơn ngay để bắt đầu trải nghiệm LuxuryAuto.
+        </p>
+
+        <a class="lux-button"
+           href="@Url.Action("Index", "Home", new { area = "" })">
+            Xem danh sách xe
+        </a>
+    </div>
+}
+else if (!Model.Groups.Any(g => g.Total > 0))
+{
+    <div class="orders-empty">
+        Không có đơn hàng phù hợp với tìm kiếm.
+    </div>
+}
+else
+{
+    foreach (var group in Model.Groups)
+    {
+        if (group.Total > 0)
+        {
+            <div class="orders-group-heading">
+                <h3>@group.Status</h3>
+                <span>@group.Total đơn hàng</span>
+            </div>
+
+            foreach (var order in group.Items)
+            {
+                <article class="customer-order-card">
+                    <div class="customer-order-top">
+                        <div>
+                            <strong>Đơn #@order.OrderID</strong>
+
+                            <span class="text-muted ms-2">
+                                @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                            </span>
+                        </div>
+
+                        <span class="order-state">
+                            @order.OrderStatus
+                        </span>
+                    </div>
+
+                    @foreach (var detail in order.OrderDetails)
+                    {
+                        <div class="customer-order-product">
+                            <div>
+                                <strong>
+                                    @(detail.Product != null
+                                        ? detail.Product.ProductName
+                                        : "Sản phẩm không còn tồn tại")
+                                </strong>
+
+                                <div class="text-muted small mt-1">
+                                    Số lượng: @detail.Quantity
+                                    ·
+                                    @string.Format(
+                                             vi,
+                                             "{0:N0}",
+                                             detail.UnitPrice)
+                                    VNĐ / xe
+                                </div>
+                            </div>
+
+                            @if (detail.Product != null)
+                            {
+                                <div class="order-product-actions">
+                                    <a class="btn btn-outline-secondary btn-sm"
+                                       href="@Url.Action("Details", "Home", new
+                                       {
+                                           area = "",
+                                           id = detail.ProductID
+                                       })">
+                                        Xem sản phẩm
+                                    </a>
+
+                                    @using (Html.BeginForm(
+                                        "BuyAgain",
+                                        "MyOrders",
+                                        new { area = "" },
+                                        FormMethod.Post,
+                                        new { @class = "m-0" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="orderId"
+                                               value="@order.OrderID" />
+
+                                        <input type="hidden"
+                                               name="productId"
+                                               value="@detail.ProductID" />
+
+                                        <button type="submit"
+                                                class="btn btn-outline-secondary btn-sm">
+                                            Mua lại
+                                        </button>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    }
+
+                    <div class="customer-order-bottom">
+                        <div>
+                            <small class="text-muted">
+                                @order.PaymentStatus
+                            </small>
+
+                            <div class="order-total">
+                                @string.Format(
+                                         vi,
+                                         "{0:N0}",
+                                         order.TotalAmount)
+                                VNĐ
+                            </div>
+                        </div>
+
+                        <a class="lux-button"
+                           href="@Url.Action("Details", "MyOrders", new
+                           {
+                               area = "",
+                               id = order.OrderID
+                           })">
+                            Xem hóa đơn
+                        </a>
+                    </div>
+                </article>
+            }
+
+            if (group.Total > group.Items.Count)
+            {
+                if (Model.Status == group.Status && Model.Expanded)
+                {
+                    <p class="text-muted small">
+                        Đang hiển thị tối đa 50 đơn mới nhất.
+                        Bạn có thể tìm theo mã đơn hoặc tên sản phẩm.
+                    </p>
+                }
+                else
+                {
+                    <a class="orders-more"
+                       href="@Url.Action("Index", "MyOrders", new
+                       {
+                           area = "",
+                           status = group.Status,
+                           searchTerm = Model.SearchTerm,
+                           expanded = true
+                       })">
+                        Xem thêm đơn @group.Status.ToLower()
+                    </a>
+                }
+            }
+        }
+    }
+}

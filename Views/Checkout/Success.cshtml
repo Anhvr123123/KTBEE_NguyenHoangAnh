@@ -1,0 +1,78 @@
+﻿
+@model KTBEE_NguyenHoangAnh.Models.Order
+
+@{
+    ViewBag.Title = "Đặt hàng thành công";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<div class="container my-5">
+
+    <div class="card shadow-sm mx-auto"
+         style="max-width:700px;">
+
+        <div class="card-body p-4 text-center">
+
+            <h2 class="text-success mb-3">
+                Đặt hàng thành công!
+            </h2>
+
+            <p>
+                Cảm ơn bạn đã đặt xe tại LuxuryAuto.
+            </p>
+
+            <p>
+                Đơn hàng đã được ghi nhận và
+                đang chờ nhân viên xác nhận.
+            </p>
+
+            <hr />
+
+            <table class="table table-bordered text-start">
+                <tbody>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <td>#@Model.OrderID</td>
+                    </tr>
+
+                    <tr>
+                        <th>Ngày đặt</th>
+                        <td>
+                            @Model.OrderDate.ToString(
+                                     "dd/MM/yyyy HH:mm")
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Tổng tiền</th>
+                        <td class="text-danger fw-bold">
+                            @String.Format("{0:N0}",
+                                     Model.TotalAmount) VNĐ
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <th>Thanh toán</th>
+                        <td>@Model.PaymentMethod</td>
+                    </tr>
+
+                    <tr>
+                        <th>Trạng thái</th>
+                        <td>@Model.OrderStatus</td>
+                    </tr>
+
+                    <tr>
+                        <th>Địa chỉ nhận xe</th>
+                        <td>@Model.ShippingAddress</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <a href="@Url.Action("Index", "Home")"
+               class="btn btn-primary mt-3">
+                Tiếp tục xem xe
+            </a>
+
+        </div>
+    </div>
+</div>

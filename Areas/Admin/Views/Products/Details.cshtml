@@ -1,0 +1,36 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.Product
+
+@{
+    ViewBag.Title = "Chi tiết xe";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+@section styles {
+    <link href="@Url.Content("~/Content/LuxuryAuto/ProductViews.css")"
+          rel="stylesheet" />
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h2 class="mb-0">Chi tiết sản phẩm</h2>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-warning"
+           href="@Url.Action("Edit", "Products", new
+           {
+               area = "Admin",
+               id = Model.ProductID
+           })">
+            Sửa thông tin
+        </a>
+
+        <a class="btn btn-outline-secondary"
+           href="@Url.Action("Index", "Products",
+               new { area = "Admin" })">
+            Quay lại
+        </a>
+    </div>
+</div>
+
+@Html.Partial(
+    "~/Views/Shared/_ProductInformation.cshtml",
+    Model)

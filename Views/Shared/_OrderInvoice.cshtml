@@ -1,0 +1,120 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.Order
+@using System.Globalization
+
+@{
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+
+    string paymentMethod =
+        Model.PaymentMethod == "COD"
+            ? "Thanh toán khi nhận xe"
+            : Model.PaymentMethod == "BANK"
+                ? "Chuyển khoản ngân hàng"
+                : Model.PaymentMethod;
+}
+
+<section class="order-invoice">
+    <div class="invoice-header">
+        <div>
+            <h3>LuxuryAuto</h3>
+            <span>Thông tin đơn hàng</span>
+        </div>
+
+        <div class="text-end">
+            <strong>ĐƠN HÀNG #@Model.OrderID</strong>
+            <div class="mt-1">
+                @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <h5>Thông tin nhận xe</h5>
+
+            <p>
+                <strong>Khách hàng:</strong>
+                @(Model.Customer != null
+                    ? Model.Customer.CustomerName
+                    : "Không xác định")
+            </p>
+
+            <p>
+                <strong>Điện thoại:</strong>
+                @(Model.Customer != null
+                    ? Model.Customer.CustomerPhone
+                    : "")
+            </p>
+
+            <p>
+                <strong>Địa chỉ:</strong>
+                @Model.ShippingAddress
+            </p>
+        </div>
+
+        <div class="col-md-6">
+            <h5>Thanh toán và giao hàng</h5>
+
+            <p>
+                <strong>Phương thức:</strong>
+                @paymentMethod
+            </p>
+
+            <p>
+                <strong>Thanh toán:</strong>
+                @Model.PaymentStatus
+            </p>
+
+            <p>
+                <strong>Trạng thái đơn:</strong>
+                @Model.OrderStatus
+            </p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+            <thead>
+                <tr>
+                    <th>Tên xe</th>
+                    <th>Số lượng</th>
+                    <th>Đơn giá</th>
+                    <th>Thành tiền</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.OrderDetails)
+                {
+                    <tr>
+                        <td>
+                            @(item.Product != null
+                                ? item.Product.ProductName
+                                : "Sản phẩm không còn tồn tại")
+                        </td>
+
+                        <td>@item.Quantity</td>
+
+                        <td>
+                            @string.Format(vi, "{0:N0}", item.UnitPrice)
+                            VNĐ
+                        </td>
+
+                        <td>
+                            @string.Format(vi, "{0:N0}", item.TotalPrice)
+                            VNĐ
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="invoice-total">
+        <span>Tổng thanh toán</span>
+
+        <strong>
+            @string.Format(vi, "{0:N0}", Model.TotalAmount)
+            VNĐ
+        </strong>
+    </div>
+</section>

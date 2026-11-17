@@ -1,0 +1,89 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.InventoryEditViewModel
+
+@{
+    ViewBag.Title = "Cập nhật kho";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-body">
+                <h2>Cập nhật kho</h2>
+
+                <p class="text-muted">
+                    @Model.ProductName
+                </p>
+
+                @using (Html.BeginForm(
+                    "Edit",
+                    "Inventory",
+                    new { area = "Admin" },
+                    FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.ProductID)
+
+                    @Html.ValidationSummary(
+                             true,
+                             "",
+                             new { @class = "text-danger mb-3" })
+
+                    <div class="mb-3">
+                        <label class="form-label">
+                            Đã bán / giữ cho đơn hàng
+                        </label>
+
+                        <input type="text"
+                               class="form-control"
+                               value="@Model.QuantitySold"
+                               readonly />
+                    </div>
+
+                    <div class="mb-3">
+                        @Html.LabelFor(
+                                 m => m.Quantity,
+                                 "Tổng số lượng trong kho",
+                                 new { @class = "form-label" })
+
+                        @Html.TextBoxFor(
+                                 m => m.Quantity,
+                                 new
+                                 {
+                                     @class = "form-control",
+                                     type = "number",
+                                     min = Model.QuantitySold,
+                                     step = "1",
+                                     required = "required"
+                                 })
+
+                        @Html.ValidationMessageFor(
+                                 m => m.Quantity,
+                                 "",
+                                 new { @class = "text-danger small" })
+                    </div>
+
+                    <div class="alert alert-light border small">
+                        Nhập tổng số lượng sau khi nhập kho,
+                        không phải số lượng nhập thêm.
+                        <br />
+                        Ví dụ: tổng hiện tại 10 xe, nhập thêm 3 xe
+                        thì điền 13.
+                    </div>
+
+                    <div class="d-flex flex-wrap gap-2 mt-4">
+                        <button type="submit" class="btn btn-success">
+                            Lưu thay đổi
+                        </button>
+
+                        <a class="btn btn-outline-secondary"
+                           href="@Url.Action("Index", "Inventory",
+                               new { area = "Admin" })">
+                            Quay lại
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

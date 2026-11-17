@@ -1,0 +1,84 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.Product
+@using System
+@using System.Linq
+
+@{
+    ViewBag.Title = Model.ProductName;
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var stock = Model.ProductDetails
+        .OrderBy(d => d.ProductDetailID)
+        .FirstOrDefault();
+
+    int available = stock == null
+        ? 0
+        : Math.Max(0, stock.Quantity - stock.QuantitySold);
+}
+
+@section styles {
+    <link href="@Url.Content("~/Content/LuxuryAuto/ProductViews.css")"
+          rel="stylesheet" />
+}
+
+<a class="btn btn-outline-secondary mb-4"
+   href="@Url.Action("Index", "Home", new { area = "" })">
+    ← Quay lại bộ sưu tập
+</a>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@Html.Partial(
+    "~/Views/Shared/_ProductInformation.cshtml",
+    Model)
+
+<div class="product-purchase">
+    @if (available > 0)
+    {
+        <div>
+            @using (Html.BeginForm(
+                "Add",
+                "Cart",
+                new { area = "" },
+                FormMethod.Post,
+                new { @class = "product-purchase-form" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <input type="hidden"
+                       name="id"
+                       value="@Model.ProductID" />
+
+                <div>
+                    <label for="buyQuantity" class="form-label">
+                        Số lượng
+                    </label>
+
+                    <input type="number"
+                           id="buyQuantity"
+                           name="quantity"
+                           value="1"
+                           min="1"
+                           max="@available"
+                           step="1"
+                           class="form-control"
+                           required />
+                </div>
+
+                <button type="submit" class="lux-button">
+                    Thêm vào giỏ hàng
+                </button>
+            }
+        </div>
+    }
+    else
+    {
+        <p class="text-muted mb-0">
+            Xe hiện đã hết hàng. Vui lòng chọn mẫu xe khác.
+        </p>
+    }
+</div>

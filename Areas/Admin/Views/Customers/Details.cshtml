@@ -1,0 +1,133 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.Customer
+@using System.Linq
+@using System.Globalization
+
+@{
+    ViewBag.Title = "Chi tiết khách hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+
+    var orders = Model.Orders
+        .OrderByDescending(o => o.OrderDate)
+        .ThenByDescending(o => o.OrderID)
+        .ToList();
+
+    int deliveredCount = orders.Count(
+        o => o.OrderStatus == "Đã giao");
+
+    int cancelledCount = orders.Count(
+        o => o.OrderStatus == "Đã hủy");
+
+    decimal paidAmount = orders
+        .Where(o =>
+            o.PaymentStatus == "Đã thanh toán" &&
+            o.OrderStatus != "Đã hủy")
+        .Sum(o => o.TotalAmount);
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2>Chi tiết khách hàng</h2>
+        <p class="text-muted mb-0">
+            Mã khách hàng: #@Model.CustomerID
+        </p>
+    </div>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "Customers",
+           new { area = "Admin" })">
+        Quay lại danh sách
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Thông tin khách hàng</h5>
+            </div>
+
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Họ tên</dt>
+                    <dd class="col-sm-8">@Model.CustomerName</dd>
+
+                    <dt class="col-sm-4">Tài khoản</dt>
+                    <dd class="col-sm-8">@Model.Username</dd>
+
+                    <dt class="col-sm-4">Điện thoại</dt>
+                    <dd class="col-sm-8">@Model.CustomerPhone</dd>
+
+                    <dt class="col-sm-4">Email</dt>
+                    <dd class="col-sm-8 text-break">
+                        @(string.IsNullOrWhiteSpace(Model.CustomerEmail)
+                            ? "Chưa cập nhật"
+                            : Model.CustomerEmail)
+                    </dd>
+
+                    <dt class="col-sm-4">Địa chỉ</dt>
+                    <dd class="col-sm-8 text-break">
+                        @(string.IsNullOrWhiteSpace(Model.CustomerAddress)
+                            ? "Chưa cập nhật"
+                            : Model.CustomerAddress)
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">Tóm tắt đơn hàng</h5>
+            </div>
+
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Tổng số đơn</span>
+                    <strong>@orders.Count</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Đơn đã giao</span>
+                    <strong>@deliveredCount</strong>
+                </div>
+
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Đơn đã hủy</span>
+                    <strong>@cancelledCount</strong>
+                </div>
+
+                <hr />
+
+                <div class="d-flex justify-content-between flex-wrap gap-2">
+                    <span>Tổng tiền đã thanh toán*</span>
+
+                    <strong>
+                        @string.Format(vi, "{0:N0}", paidAmount)
+                        VNĐ
+                    </strong>
+                </div>
+
+                <p class="text-muted small mt-3 mb-0">
+                    *Chỉ tính đơn đã thanh toán và chưa hủy.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            Đơn hàng của @Model.CustomerName
+        </h5>
+    </div>
+
+    <div class="card-body">
+        @Html.Partial(
+            "~/Areas/Admin/Views/Customers/_CustomerOrders.cshtml",
+            orders)
+    </div>
+</div>

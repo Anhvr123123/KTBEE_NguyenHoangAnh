@@ -1,0 +1,202 @@
+﻿@using System
+
+@{
+    string username = Convert.ToString(Session["Username"]);
+    string role = Convert.ToString(Session["UserRole"]).Trim();
+
+    bool isAdmin = !string.IsNullOrWhiteSpace(username)
+                   && role == "A";
+
+    string currentController =
+        Convert.ToString(ViewContext.RouteData.Values["controller"]);
+
+    bool isProductPage =
+        currentController == "Products" ||
+        currentController == "Inventory";
+
+    bool isAccountPage =
+        currentController == "Profile" ||
+        currentController == "AdminUsers";
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1" />
+
+    <title>@ViewBag.Title - LuxuryAuto Admin</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet" />
+
+    @RenderSection("styles", required: false)
+
+    <link href="@Url.Content("~/Content/LuxuryAuto/Admin.css?v=4")"
+          rel="stylesheet" />
+</head>
+
+<body class="admin-page">
+    <header class="admin-navbar">
+        <div class="admin-nav-container">
+            <a class="admin-brand"
+               href="@Url.Action("Index", "Admin", new { area = "Admin" })">
+                Luxury<span>Auto</span>
+                <small>ADMIN</small>
+            </a>
+
+            <nav aria-label="Điều hướng quản trị">
+                <ul class="admin-menu">
+                    @if (isAdmin)
+                    {
+                        <li>
+                            <a class="admin-link @(currentController == "Admin" ? "active" : "")"
+                               href="@Url.Action("Index", "Admin",
+                                   new { area = "Admin" })">
+                                Thống kê
+                            </a>
+                        </li>
+
+                        <li class="admin-account">
+                            <button type="button"
+                                    class="admin-link @(isProductPage ? "active" : "")"
+                                    aria-controls="adminProductMenu">
+                                Hàng hóa ▾
+                            </button>
+
+                            <div class="admin-account-menu"
+                                 id="adminProductMenu">
+                                <a href="@Url.Action("Index", "Products",
+                                             new { area = "Admin" })">
+                                    Danh sách sản phẩm
+                                </a>
+
+                                <a href="@Url.Action("Index", "Inventory",
+                                             new { area = "Admin" })">
+                                    Quản lý kho
+                                </a>
+                            </div>
+                        </li>
+
+                        <li>
+                            <a class="admin-link @(currentController == "Categories" ? "active" : "")"
+                               href="@Url.Action("Index", "Categories",
+                                   new { area = "Admin" })">
+                                Danh mục
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="admin-link @(currentController == "Customers" ? "active" : "")"
+                               href="@Url.Action("Index", "Customers",
+                                   new { area = "Admin" })">
+                                Khách hàng
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="admin-link @(currentController == "Orders" ? "active" : "")"
+                               href="@Url.Action("Index", "Orders",
+                                   new { area = "Admin" })">
+                                Đơn hàng
+                            </a>
+                        </li>
+
+                        <li class="admin-account">
+                            <button type="button"
+                                    class="admin-link admin-account-toggle @(isAccountPage ? "active" : "")"
+                                    aria-controls="adminAccountMenu">
+                                @username ▾
+                            </button>
+
+                            <div class="admin-account-menu"
+                                 id="adminAccountMenu">
+                                <a href="@Url.Action("Index", "Profile",
+                                             new { area = "Admin" })">
+                                    Thông tin Admin
+                                </a>
+
+                                <a href="@Url.Action("Index", "AdminUsers",
+                                             new { area = "Admin" })">
+                                    Tài khoản Admin
+                                </a>
+
+                                @using (Html.BeginForm(
+                                    "GoToCustomer",
+                                    "Account",
+                                    new { area = "Admin" },
+                                    FormMethod.Post,
+                                    new { @class = "m-0" }))
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit">
+                                        Trang khách hàng
+                                    </button>
+                                }
+
+                                @using (Html.BeginForm(
+                                    "Logout",
+                                    "Account",
+                                    new { area = "Admin" },
+                                    FormMethod.Post,
+                                    new { @class = "admin-logout-form" }))
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <button type="submit">
+                                        Đăng xuất
+                                    </button>
+                                }
+                            </div>
+                        </li>
+                    }
+                    else
+                    {
+                        <li>
+                            <a class="admin-link"
+                               href="@Url.Action("Login", "Account",
+                                   new { area = "Admin" })">
+                                Đăng nhập Admin
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="admin-content">
+        <div class="container admin-container">
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show"
+                     role="alert">
+                    @TempData["Success"]
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="alert"
+                            aria-label="Đóng">
+                    </button>
+                </div>
+            }
+
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="admin-footer">
+        <div class="container admin-footer-inner">
+            <span>LuxuryAuto · Quản trị hệ thống</span>
+            <span>&copy; @DateTime.Now.Year LuxuryAuto</span>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

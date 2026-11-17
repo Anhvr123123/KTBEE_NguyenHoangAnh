@@ -1,0 +1,111 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.Order
+@using KTBEE_NguyenHoangAnh.Models
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    string[] nextStates = OrderStates.Next(Model.OrderStatus);
+}
+
+@section styles {
+    <link href="@Url.Content("~/Content/LuxuryAuto/OrderFeatures.css")"
+          rel="stylesheet" />
+}
+
+<div class="orders-heading">
+    <h2>Chi tiết đơn hàng #@Model.OrderID</h2>
+
+    <a class="btn btn-secondary"
+       href="@Url.Action("Index", new { area = "Admin" })">
+        Quay lại danh sách
+    </a>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@Html.Partial("~/Views/Shared/_OrderInvoice.cshtml", Model)
+
+<div class="row g-4 mt-1">
+    @if (nextStates.Length > 0)
+    {
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Cập nhật trạng thái</h5>
+
+                    @using (Html.BeginForm(
+                        "UpdateStatus",
+                        "Orders",
+                        new { area = "Admin" },
+                        FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderID" />
+
+                        <label for="nextStatus" class="form-label">
+                            Trạng thái tiếp theo
+                        </label>
+
+                        <select id="nextStatus"
+                                name="status"
+                                class="form-select mb-3"
+                                required>
+                            @foreach (string state in nextStates)
+                            {
+                                <option value="@state">@state</option>
+                            }
+                        </select>
+
+                        <button type="submit" class="btn btn-primary">
+                            Cập nhật trạng thái
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.OrderStatus != "Đã hủy" &&
+         Model.PaymentStatus != "Đã thanh toán")
+    {
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5>Xác nhận thanh toán</h5>
+
+                    <p class="text-muted">
+                        Chỉ xác nhận khi đã thực tế nhận đủ tiền.
+                    </p>
+
+                    @using (Html.BeginForm(
+                        "ConfirmPayment",
+                        "Orders",
+                        new { area = "Admin" },
+                        FormMethod.Post))
+                    {
+                        @Html.AntiForgeryToken()
+
+                        <input type="hidden"
+                               name="id"
+                               value="@Model.OrderID" />
+
+                        <button type="submit"
+                                class="btn btn-success"
+                                onclick="return confirm('Bạn đã nhận đủ tiền của đơn hàng này?');">
+                            Đã nhận đủ tiền
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

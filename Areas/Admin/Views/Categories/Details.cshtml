@@ -1,0 +1,37 @@
+﻿
+@model KTBEE_NguyenHoangAnh.Models.Category
+
+@{
+    ViewBag.Title = "Chi tiết hãng xe";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Chi tiết hãng xe</h2>
+<hr />
+
+<table class="table table-bordered">
+    <tr>
+        <th style="width:200px">Mã hãng</th>
+        <td>@Model.CategoryID</td>
+    </tr>
+
+    <tr>
+        <th>Tên hãng</th>
+        <td>@Model.CategoryName</td>
+    </tr>
+
+    <tr>
+        <th>Mô tả</th>
+        <td>@Model.Description</td>
+    </tr>
+</table>
+
+<a href="@Url.Action("Edit", new { id = Model.CategoryID })"
+   class="btn btn-warning">
+    Sửa
+</a>
+
+<a href="@Url.Action("Index")"
+   class="btn btn-secondary">
+    Quay lại
+</a>

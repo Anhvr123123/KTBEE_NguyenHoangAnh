@@ -1,0 +1,350 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.Product
+@using System
+@using System.Web.Mvc
+
+@{
+    ViewBag.Title = "Sửa thông tin xe";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    string imageUrl = "";
+
+    if (!string.IsNullOrWhiteSpace(Model.ProductImage))
+    {
+        string image = Model.ProductImage.Trim();
+
+        if (image.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            image.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            imageUrl = image;
+        }
+        else if (image.StartsWith("~/"))
+        {
+            imageUrl = Url.Content(image);
+        }
+        else if (image.StartsWith("/"))
+        {
+            imageUrl = image;
+        }
+        else
+        {
+            imageUrl = Url.Content("~/Images/cars/" + image);
+        }
+    }
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h2 class="mb-0">Sửa thông tin xe</h2>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "Products", new { area = "Admin" })">
+        Quay lại danh sách
+    </a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        @using (Html.BeginForm(
+            "Edit",
+            "Products",
+            new { area = "Admin" },
+            FormMethod.Post,
+            new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(m => m.ProductID)
+
+            @Html.ValidationSummary(
+                     true,
+                     "",
+                     new { @class = "text-danger mb-3", role = "alert" })
+
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="displayProductId" class="form-label">
+                        Mã xe
+                    </label>
+
+                    <input type="text"
+                           id="displayProductId"
+                           class="form-control"
+                           value="@Model.ProductID"
+                           readonly />
+                </div>
+
+                <div class="col-md-8">
+                    @Html.LabelFor(
+                             m => m.ProductName,
+                             "Tên xe",
+                             new { @class = "form-label" })
+
+                    @Html.TextBoxFor(
+                             m => m.ProductName,
+                             new
+                             {
+                                 @class = "form-control",
+                                 maxlength = "150",
+                                 required = "required"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.ProductName,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(
+                             m => m.CategoryID,
+                             "Hãng xe",
+                             new { @class = "form-label" })
+
+                    @Html.DropDownListFor(
+                             m => m.CategoryID,
+                             (SelectList)ViewBag.CategoryID,
+                             "-- Chọn hãng xe --",
+                             new
+                             {
+                                 @class = "form-select",
+                                 required = "required"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.CategoryID,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(
+                             m => m.ProductPrice,
+                             "Giá bán (VNĐ)",
+                             new { @class = "form-label" })
+
+                    @Html.TextBoxFor(
+                             m => m.ProductPrice,
+                             "{0:0.##}",
+                             new
+                             {
+                                 @class = "form-control",
+                                 type = "number",
+                                 min = "1",
+                                 step = "1",
+                                 required = "required"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.ProductPrice,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(
+                             m => m.ModelYear,
+                             "Năm sản xuất",
+                             new { @class = "form-label" })
+
+                    @Html.TextBoxFor(
+                             m => m.ModelYear,
+                             new
+                             {
+                                 @class = "form-control",
+                                 type = "number",
+                                 min = "1886",
+                                 max = DateTime.Now.Year + 1,
+                                 step = "1"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.ModelYear,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(
+                             m => m.CarColor,
+                             "Màu sắc",
+                             new { @class = "form-label" })
+
+                    @Html.TextBoxFor(
+                             m => m.CarColor,
+                             new
+                             {
+                                 @class = "form-control",
+                                 maxlength = "50",
+                                 placeholder = "Ví dụ: Trắng"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.CarColor,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(
+                             m => m.Engine,
+                             "Động cơ",
+                             new { @class = "form-label" })
+
+                    @Html.TextBoxFor(
+                             m => m.Engine,
+                             new
+                             {
+                                 @class = "form-control",
+                                 maxlength = "100",
+                                 placeholder = "Ví dụ: 3.0L"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.Engine,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-md-6">
+                    @Html.LabelFor(
+                             m => m.Transmission,
+                             "Hộp số",
+                             new { @class = "form-label" })
+
+                    @Html.TextBoxFor(
+                             m => m.Transmission,
+                             new
+                             {
+                                 @class = "form-control",
+                                 maxlength = "100",
+                                 placeholder = "Ví dụ: Tự động"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.Transmission,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-12">
+                    <label for="quantity" class="form-label">
+                        Tổng số lượng trong kho
+                    </label>
+
+                    @Html.TextBox(
+                             "quantity",
+                             (object)ViewBag.Quantity,
+                             new
+                             {
+                                 id = "quantity",
+                                 type = "number",
+                                 @class = "form-control",
+                                 min = "0",
+                                 step = "1",
+                                 required = "required"
+                             })
+
+                    @Html.ValidationMessage(
+                             "quantity",
+                             "",
+                             new { @class = "text-danger small" })
+
+                    <div class="form-text">
+                        Đây là tổng số lượng, không phải số lượng nhập thêm.
+                        Không được nhỏ hơn số xe đã bán/giữ cho đơn hàng.
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    @Html.LabelFor(
+                             m => m.ProductImage,
+                             "Link ảnh xe",
+                             new { @class = "form-label" })
+
+                    @Html.TextBoxFor(
+                             m => m.ProductImage,
+                             new
+                             {
+                                 @class = "form-control",
+                                 maxlength = "500",
+                                 placeholder = "Dán link ảnh hoặc giữ đường dẫn cũ"
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.ProductImage,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-12">
+                    <label for="UploadImage" class="form-label">
+                        Hoặc chọn ảnh từ máy tính
+                    </label>
+
+                    <input type="file"
+                           id="UploadImage"
+                           name="UploadImage"
+                           class="form-control"
+                           accept=".jpg,.jpeg,.png,.webp" />
+
+                    @Html.ValidationMessage(
+                             "UploadImage",
+                             "",
+                             new { @class = "text-danger small" })
+
+                    <div class="form-text">
+                        JPG, JPEG, PNG hoặc WEBP, tối đa 5 MB.
+                        Nếu chọn file, hệ thống ưu tiên dùng ảnh tải lên.
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(imageUrl))
+                {
+                    <div class="col-12">
+                        <label class="form-label">Ảnh hiện tại</label>
+
+                        <div>
+                            <img src="@imageUrl"
+                                 class="img-thumbnail"
+                                 width="250"
+                                 alt="@Model.ProductName" />
+                        </div>
+                    </div>
+                }
+
+                <div class="col-12">
+                    @Html.LabelFor(
+                             m => m.ProductDescription,
+                             "Mô tả xe",
+                             new { @class = "form-label" })
+
+                    @Html.TextAreaFor(
+                             m => m.ProductDescription,
+                             new
+                             {
+                                 @class = "form-control",
+                                 rows = "5",
+                                 placeholder = "Nhập mô tả xe..."
+                             })
+
+                    @Html.ValidationMessageFor(
+                             m => m.ProductDescription,
+                             "",
+                             new { @class = "text-danger small" })
+                </div>
+
+                <div class="col-12">
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <button type="submit" class="btn btn-primary">
+                            Lưu thay đổi
+                        </button>
+
+                        <a class="btn btn-outline-secondary"
+                           href="@Url.Action("Index", "Products",
+                               new { area = "Admin" })">
+                            Quay lại
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

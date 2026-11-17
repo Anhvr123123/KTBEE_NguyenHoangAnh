@@ -1,0 +1,78 @@
+﻿@model System.Collections.Generic.List<KTBEE_NguyenHoangAnh.Models.InventoryRowViewModel>
+
+<div class="table-responsive">
+    <table class="table table-bordered align-middle mb-0">
+        <thead>
+            <tr>
+                <th>Mã xe</th>
+                <th>Tên xe</th>
+                <th>Hãng</th>
+                <th>Tổng số lượng</th>
+                <th>Đã bán / giữ chỗ</th>
+                <th>Còn lại</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-muted">
+                        Không có xe trong danh sách.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.ProductID</td>
+
+                        <td>@item.ProductName</td>
+
+                        <td>@item.CategoryName</td>
+
+                        <td>@item.Quantity</td>
+
+                        <td>@item.QuantitySold</td>
+
+                        <td>
+                            @if (item.Available > 0)
+                            {
+                                <span class="badge bg-success">
+                                    @item.Available xe
+                                </span>
+                            }
+                            else if (item.Available == 0)
+                            {
+                                <span class="badge bg-secondary">
+                                    Hết hàng
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    Lệch kho: @item.Available
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <a class="btn btn-warning btn-sm"
+                               href="@Url.Action("Edit", "Inventory",
+                                   new
+                                   {
+                                       area = "Admin",
+                                       id = item.ProductID
+                                   })">
+                                Cập nhật kho
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

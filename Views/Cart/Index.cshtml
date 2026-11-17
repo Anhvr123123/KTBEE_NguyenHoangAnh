@@ -1,0 +1,236 @@
+﻿@model System.Collections.Generic.List<KTBEE_NguyenHoangAnh.Models.CartItem>
+@using System
+@using System.Linq
+@using System.Globalization
+
+@{
+    ViewBag.Title = "Giỏ hàng";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+
+    decimal total = Model.Sum(x => x.TotalPrice);
+    int totalQuantity = Model.Sum(x => x.Quantity);
+}
+
+@functions {
+    public string CartImage(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        string image = value.Trim();
+
+        if (image.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+            image.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+        {
+            return image;
+        }
+
+        if (image.StartsWith("~/"))
+        {
+            return Url.Content(image);
+        }
+
+        if (image.StartsWith("/"))
+        {
+            return image;
+        }
+
+        return Url.Content("~/Images/cars/" + image);
+    }
+}
+@section styles {
+    <link href="~/Content/LuxuryAuto/cart.css" rel="stylesheet" />
+}
+<div class="mb-4">
+    <h1 class="cart-title">Giỏ hàng của bạn</h1>
+    <p class="text-muted mb-0">
+        Kiểm tra xe và số lượng trước khi đặt hàng.
+    </p>
+</div>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success" role="alert">
+        @TempData["Success"]
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@if (Model.Count == 0)
+{
+    <div class="cart-box cart-empty">
+        <h4>Giỏ hàng đang trống</h4>
+
+        <p class="text-muted">
+            Bạn chưa thêm xe nào vào giỏ hàng.
+        </p>
+
+        <a class="lux-button"
+           href="@Url.Action("Index", "Home", new { area = "" })">
+            Xem danh sách xe
+        </a>
+    </div>
+}
+else
+{
+    <div class="cart-box">
+        <div class="table-responsive">
+            <table class="table cart-table align-middle">
+                <thead>
+                    <tr>
+                        <th>Ảnh xe</th>
+                        <th>Tên xe</th>
+                        <th>Đơn giá</th>
+                        <th>Số lượng</th>
+                        <th>Thành tiền</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        string imageUrl = CartImage(item.ProductImage);
+
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(imageUrl))
+                                {
+                                    <img class="cart-car-image"
+                                         src="@imageUrl"
+                                         alt="@item.ProductName" />
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Chưa có ảnh
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                <a class="cart-car-name"
+                                   href="@Url.Action("Details", "Home",
+                                       new { area = "", id = item.ProductID })">
+                                    @item.ProductName
+                                </a>
+                            </td>
+
+                            <td class="cart-price">
+                                @string.Format(vi, "{0:N0}", item.ProductPrice)
+                                <small>VNĐ</small>
+                            </td>
+
+                            <td>
+                                @using (Html.BeginForm(
+                                    "Update",
+                                    "Cart",
+                                    new { area = "" },
+                                    FormMethod.Post,
+                                    new { @class = "cart-quantity" }))
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@item.ProductID" />
+
+                                    <input type="number"
+                                           name="quantity"
+                                           class="form-control form-control-sm"
+                                           value="@item.Quantity"
+                                           min="1"
+                                           step="1"
+                                           required
+                                           aria-label="Số lượng @item.ProductName"
+                                           onchange="if (this.form.reportValidity()) { this.form.requestSubmit(); }" />
+
+                                }
+                            </td>
+
+                            <td class="cart-price fw-semibold">
+                                @string.Format(vi, "{0:N0}", item.TotalPrice)
+                                <small>VNĐ</small>
+                            </td>
+
+                            <td>
+                                @using (Html.BeginForm(
+                                    "Remove",
+                                    "Cart",
+                                    new { area = "" },
+                                    FormMethod.Post,
+                                    new { @class = "m-0" }))
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@item.ProductID" />
+
+                                    <button type="submit"
+                                            class="btn btn-outline-danger btn-sm"
+                                            onclick="return confirm('Xóa xe này khỏi giỏ hàng?');">
+                                        Xóa
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="cart-summary">
+        <div class="cart-summary-row mb-3">
+            <span>Tổng số lượng</span>
+            <strong>@totalQuantity xe</strong>
+        </div>
+
+        <div class="cart-summary-row align-items-center">
+            <span>Tổng thanh toán</span>
+
+            <strong class="cart-total">
+                @string.Format(vi, "{0:N0}", total) VNĐ
+            </strong>
+        </div>
+
+        <div class="cart-actions">
+            <a class="btn btn-outline-secondary"
+               href="@Url.Action("Index", "Home", new { area = "" })">
+                Tiếp tục xem xe
+            </a>
+
+            @using (Html.BeginForm(
+                "Clear",
+                "Cart",
+                new { area = "" },
+                FormMethod.Post,
+                new { @class = "m-0" }))
+            {
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-outline-danger"
+                        onclick="return confirm('Xóa toàn bộ giỏ hàng?');">
+                    Xóa giỏ hàng
+                </button>
+            }
+
+            <a class="lux-button"
+               href="@Url.Action("Index", "Checkout", new { area = "" })">
+                Tiến hành đặt hàng
+            </a>
+        </div>
+    </div>
+}

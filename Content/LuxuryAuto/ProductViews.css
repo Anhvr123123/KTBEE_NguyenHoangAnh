@@ -1,0 +1,143 @@
+﻿.product-info {
+    padding: 24px;
+    border: 1px solid #e2ddd4;
+    border-radius: 10px;
+    background: white;
+}
+
+.product-info-photo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: 8px;
+    background: #f1eee8;
+    color: #888;
+}
+
+    .product-info-photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .product-info-photo [hidden] {
+        display: none !important;
+    }
+
+.product-info-brand {
+    margin-bottom: 8px;
+    color: #92713d;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.product-info-title {
+    margin-bottom: 16px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.product-info-price {
+    margin-bottom: 20px;
+    color: #8a6835;
+    font-size: 25px;
+    font-weight: 700;
+}
+
+.product-info-specs > div {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.product-info-specs dt {
+    color: #777;
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.product-info-specs dd {
+    margin: 0;
+    font-size: 14px;
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.product-info-description {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+    .product-info-description h3 {
+        font-size: 18px;
+    }
+
+    .product-info-description p {
+        margin-bottom: 0;
+        color: #666;
+        line-height: 1.8;
+        white-space: pre-line;
+        overflow-wrap: anywhere;
+    }
+
+.product-purchase {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #e2ddd4;
+    border-radius: 8px;
+    background: white;
+}
+
+.product-purchase-form {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+    .product-purchase-form input {
+        width: 100px;
+    }
+
+.product-admin-table td {
+    vertical-align: middle;
+}
+
+.product-admin-name {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 180px;
+}
+
+    .product-admin-name img {
+        flex-shrink: 0;
+        width: 90px;
+        height: 65px;
+        object-fit: cover;
+        border-radius: 6px;
+    }
+
+    .product-admin-name [hidden] {
+        display: none !important;
+    }
+
+@media (max-width: 575px) {
+    .product-info {
+        padding: 18px;
+    }
+
+    .product-info-title {
+        font-size: 24px;
+    }
+
+    .product-info-price {
+        font-size: 22px;
+    }
+}

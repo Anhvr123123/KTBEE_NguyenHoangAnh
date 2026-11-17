@@ -1,0 +1,248 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.AdminOrdersViewModel
+@using System
+@using System.Globalization
+@using System.Web.Mvc
+@using KTBEE_NguyenHoangAnh.Models
+
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+
+    var statusOptions = new SelectList(
+        OrderStates.All,
+        Model.Status);
+
+    var paymentOptions = new SelectList(
+        new[] { "Chưa thanh toán", "Đã thanh toán" },
+        Model.PaymentStatus);
+
+    var sortOptions = new[]
+    {
+        new SelectListItem {
+            Value = "newest",
+            Text = "Mới nhất",
+            Selected = Model.Sort == "newest"
+        },
+        new SelectListItem {
+            Value = "oldest",
+            Text = "Cũ nhất",
+            Selected = Model.Sort == "oldest"
+        },
+        new SelectListItem {
+            Value = "total_asc",
+            Text = "Tổng tiền tăng",
+            Selected = Model.Sort == "total_asc"
+        },
+        new SelectListItem {
+            Value = "total_desc",
+            Text = "Tổng tiền giảm",
+            Selected = Model.Sort == "total_desc"
+        }
+    };
+}
+
+<h2>Quản lý đơn hàng</h2>
+
+@Html.ValidationSummary(
+    true,
+    "",
+    new { @class = "text-danger" })
+
+@using (Html.BeginForm(
+    "Index",
+    "Orders",
+    new { area = "Admin" },
+    FormMethod.Get))
+{
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label" for="searchTerm">
+                        Mã đơn hoặc tên khách hàng
+                    </label>
+
+                    <input id="searchTerm"
+                           name="searchTerm"
+                           value="@Model.SearchTerm"
+                           class="form-control"
+                           placeholder="Nhập nội dung tìm kiếm" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" for="status">
+                        Trạng thái đơn
+                    </label>
+
+                    @Html.DropDownList(
+                             "status",
+                             statusOptions,
+                             "Tất cả trạng thái",
+                             new { @class = "form-select" })
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" for="paymentStatus">
+                        Thanh toán
+                    </label>
+
+                    @Html.DropDownList(
+                             "paymentStatus",
+                             paymentOptions,
+                             "Tất cả thanh toán",
+                             new { @class = "form-select" })
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" for="fromDate">
+                        Từ ngày
+                    </label>
+
+                    <input type="date"
+                           id="fromDate"
+                           name="fromDate"
+                           value="@(Model.FromDate.HasValue ? Model.FromDate.Value.ToString("yyyy-MM-dd") : "")"
+                           class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" for="toDate">
+                        Đến ngày
+                    </label>
+
+                    <input type="date"
+                           id="toDate"
+                           name="toDate"
+                           value="@(Model.ToDate.HasValue ? Model.ToDate.Value.ToString("yyyy-MM-dd") : "")"
+                           class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label" for="sort">
+                        Sắp xếp
+                    </label>
+
+                    @Html.DropDownList(
+                             "sort",
+                             sortOptions,
+                             new { @class = "form-select" })
+                </div>
+
+                <div class="col-12 d-flex flex-wrap gap-2">
+                    <button type="submit" class="btn btn-primary">
+                        Tìm kiếm
+                    </button>
+
+                    <a class="btn btn-secondary"
+                       href="@Url.Action("Index", new { area = "Admin" })">
+                        Làm mới
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<p class="text-muted">
+    Tìm thấy @Model.TotalItems đơn hàng
+    · Trang @Model.Page / @Model.TotalPages
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered align-middle">
+        <thead>
+            <tr>
+                <th>Mã đơn</th>
+                <th>Khách hàng</th>
+                <th>Ngày đặt</th>
+                <th>Tổng tiền</th>
+                <th>Thanh toán</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (Model.Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="7" class="text-center py-4">
+                        Không có đơn hàng phù hợp.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var order in Model.Items)
+                {
+                    <tr>
+                        <td>#@order.OrderID</td>
+
+                        <td>
+                            @(order.Customer != null
+                                ? order.Customer.CustomerName
+                                : "Không xác định")
+                        </td>
+
+                        <td>
+                            @order.OrderDate.ToString("dd/MM/yyyy HH:mm")
+                        </td>
+
+                        <td>
+                            @string.Format(vi, "{0:N0}", order.TotalAmount)
+                            VNĐ
+                        </td>
+
+                        <td>@order.PaymentStatus</td>
+                        <td>@order.OrderStatus</td>
+
+                        <td>
+                            <a class="btn btn-primary btn-sm"
+                               href="@Url.Action("Details", new {
+                                   area = "Admin",
+                                   id = order.OrderID
+                               })">
+                                Chi tiết
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (Model.TotalPages > 1)
+{
+    int firstPage = Math.Max(1, Model.Page - 2);
+    int lastPage = Math.Min(Model.TotalPages, Model.Page + 2);
+
+    <nav aria-label="Phân trang đơn hàng">
+        <ul class="pagination flex-wrap">
+            @for (int p = firstPage; p <= lastPage; p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Index", new {
+                           area = "Admin",
+                           page = p,
+                           searchTerm = Model.SearchTerm,
+                           status = Model.Status,
+                           paymentStatus = Model.PaymentStatus,
+                           fromDate = Model.FromDate.HasValue
+                               ? Model.FromDate.Value.ToString("yyyy-MM-dd")
+                               : "",
+                           toDate = Model.ToDate.HasValue
+                               ? Model.ToDate.Value.ToString("yyyy-MM-dd")
+                               : "",
+                           sort = Model.Sort
+                       })">
+                        @p
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

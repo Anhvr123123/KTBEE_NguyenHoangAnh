@@ -1,0 +1,184 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.CustomerProfileViewModel
+
+@{
+    ViewBag.Title = "Thông tin khách hàng";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+<div class="customer-profile-card">
+    <h2>Thông tin khách hàng</h2>
+    <p class="text-muted mb-4">
+        Cập nhật thông tin và ảnh đại diện của bạn.
+    </p>
+
+    @if (TempData["ProfileSuccess"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["ProfileSuccess"]
+        </div>
+    }
+
+    @using (Html.BeginForm(
+        "Index",
+        "CustomerProfile",
+        new { area = "" },
+        FormMethod.Post,
+        new { enctype = "multipart/form-data" }))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.ValidationSummary(
+                 true, "", new { @class = "text-danger" })
+
+        <div class="profile-avatar-wrap">
+            <img id="customerAvatarPreview"
+                 class="profile-avatar-image"
+                 src="@Url.Action("Avatar", "CustomerProfile", new { area = "" })"
+                 alt="Ảnh đại diện"
+                 onerror="this.hidden=true; document.getElementById('customerAvatarFallback').hidden=false;" />
+
+            <div id="customerAvatarFallback"
+                 class="profile-avatar-fallback"
+                 hidden>
+                @(string.IsNullOrWhiteSpace(Model.Username)
+                    ? "U"
+                    : Model.Username.Substring(0, 1).ToUpperInvariant())
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <label for="Avatar" class="form-label">Ảnh đại diện</label>
+
+            <input id="Avatar"
+                   name="Avatar"
+                   type="file"
+                   class="form-control"
+                   accept="image/jpeg,image/png" />
+
+            <div class="form-text">
+                JPG hoặc PNG, tối đa 2 MB. Không chọn ảnh để giữ ảnh cũ.
+            </div>
+
+            @Html.ValidationMessageFor(
+                     m => m.Avatar, "", new { @class = "text-danger small" })
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label" for="profileUsername">
+                Tên tài khoản
+            </label>
+
+            <input id="profileUsername"
+                   type="text"
+                   value="@Model.Username"
+                   class="form-control"
+                   readonly />
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.CustomerName, "Họ tên",
+                     new { @class = "form-label" })
+
+            @Html.TextBoxFor(m => m.CustomerName,
+                     new { @class = "form-control", maxlength = "100" })
+
+            @Html.ValidationMessageFor(m => m.CustomerName, "",
+                     new { @class = "text-danger small" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.CustomerPhone, "Số điện thoại",
+                     new { @class = "form-label" })
+
+            @Html.TextBoxFor(m => m.CustomerPhone,
+                     new
+                     {
+                         @class = "form-control",
+                         type = "tel",
+                         maxlength = "20"
+                     })
+
+            @Html.ValidationMessageFor(m => m.CustomerPhone, "",
+                     new { @class = "text-danger small" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.CustomerEmail, "Email",
+                     new { @class = "form-label" })
+
+            @Html.TextBoxFor(m => m.CustomerEmail,
+                     new
+                     {
+                         @class = "form-control",
+                         type = "email",
+                         maxlength = "100"
+                     })
+
+            @Html.ValidationMessageFor(m => m.CustomerEmail, "",
+                     new { @class = "text-danger small" })
+        </div>
+
+        <div class="mb-4">
+            @Html.LabelFor(m => m.CustomerAddress, "Địa chỉ",
+                     new { @class = "form-label" })
+
+            @Html.TextAreaFor(m => m.CustomerAddress,
+                     new
+                     {
+                         @class = "form-control",
+                         rows = "3",
+                         maxlength = "255"
+                     })
+
+            @Html.ValidationMessageFor(m => m.CustomerAddress, "",
+                     new { @class = "text-danger small" })
+        </div>
+
+        <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="lux-button">
+                Lưu thay đổi
+            </button>
+
+            <a class="btn btn-outline-secondary"
+               href="@Url.Action("Index", "Home", new { area = "" })">
+                Quay lại
+            </a>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        (function () {
+            var input = document.getElementById("Avatar");
+            var preview = document.getElementById("customerAvatarPreview");
+            var fallback = document.getElementById("customerAvatarFallback");
+            var objectUrl = null;
+
+            input.addEventListener("change", function () {
+                input.setCustomValidity("");
+
+                var file = input.files[0];
+                if (!file) return;
+
+                if (file.size > 2 * 1024 * 1024 ||
+                    (file.type !== "image/jpeg" &&
+                        file.type !== "image/png")) {
+                    input.setCustomValidity(
+                        "Vui lòng chọn ảnh JPG hoặc PNG tối đa 2 MB.");
+                    input.reportValidity();
+                    return;
+                }
+
+                if (objectUrl) {
+                    URL.revokeObjectURL(objectUrl);
+                }
+
+                objectUrl = URL.createObjectURL(file);
+                preview.src = objectUrl;
+                preview.hidden = false;
+                fallback.hidden = true;
+            });
+        })();
+    </script>
+}

@@ -1,0 +1,347 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.ProductCategoryViewModel
+@using System
+@using System.Linq
+@using System.Globalization
+@using System.Web.Mvc
+
+@{
+    ViewBag.Title = Model.CategoryName;
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+
+
+    var yearOptions = Model.Years.Select(y => new SelectListItem
+    {
+        Value = y.ToString(),
+        Text = y.ToString(),
+        Selected = Model.Year == y
+    });
+
+    var sortOptions = new[]
+    {
+        new SelectListItem
+        {
+            Value = "newest",
+            Text = "Mới nhất",
+            Selected = Model.Sort == "newest"
+        },
+        new SelectListItem
+        {
+            Value = "price_asc",
+            Text = "Giá tăng dần",
+            Selected = Model.Sort == "price_asc"
+        },
+        new SelectListItem
+        {
+            Value = "price_desc",
+            Text = "Giá giảm dần",
+            Selected = Model.Sort == "price_desc"
+        },
+        new SelectListItem
+        {
+            Value = "name",
+            Text = "Tên xe A–Z",
+            Selected = Model.Sort == "name"
+        }
+    };
+}
+
+@functions {
+    public string CarImage(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        string image = value.Trim();
+
+        if (image.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            image.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return image;
+        }
+
+        if (image.StartsWith("~/"))
+        {
+            return Url.Content(image);
+        }
+
+        if (image.StartsWith("/"))
+        {
+            return image;
+        }
+
+        return Url.Content("~/Images/cars/" + image);
+    }
+}
+
+@section styles {
+    <link href="@Url.Content("~/Content/LuxuryAuto/Categories.css")"
+          rel="stylesheet" />
+}
+
+<div class="category-heading">
+    <div>
+        <div class="category-label">BỘ SƯU TẬP</div>
+        <h1>Xe @Model.CategoryName</h1>
+        <p>Khám phá các mẫu xe hiện còn hàng.</p>
+    </div>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", "Home", new { area = "" })">
+        Về trang chủ
+    </a>
+</div>
+
+@using (Html.BeginForm(
+    "Category",
+    "Home",
+    new { area = "", id = Model.CategoryID },
+    FormMethod.Get))
+{
+    <div class="category-filter">
+        @Html.ValidationSummary(
+                      false,
+                      "",
+                      new { @class = "text-danger small", role = "alert" })
+
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4">
+                <label for="searchTerm" class="form-label">
+                    Tên xe
+                </label>
+
+                <input type="search"
+                       id="searchTerm"
+                       name="searchTerm"
+                       value="@Model.SearchTerm"
+                       class="form-control"
+                       placeholder="Nhập tên xe..." />
+            </div>
+
+            <div class="col-md-3 col-lg-2">
+                <label for="minPrice" class="form-label">
+                    Giá từ (VNĐ)
+                </label>
+
+                @Html.TextBox(
+                              "minPrice",
+                              Model.MinPrice.HasValue
+                                  ? Model.MinPrice.Value.ToString(
+                                      "0", CultureInfo.InvariantCulture)
+                                  : "",
+                              new
+                              {
+                                  @class = "form-control",
+                                  type = "number",
+                                  min = "0",
+                                  step = "1",
+                                  placeholder = "Không giới hạn"
+                              })
+            </div>
+
+            <div class="col-md-3 col-lg-2">
+                <label for="maxPrice" class="form-label">
+                    Giá đến (VNĐ)
+                </label>
+
+                @Html.TextBox(
+                              "maxPrice",
+                              Model.MaxPrice.HasValue
+                                  ? Model.MaxPrice.Value.ToString(
+                                      "0", CultureInfo.InvariantCulture)
+                                  : "",
+                              new
+                              {
+                                  @class = "form-control",
+                                  type = "number",
+                                  min = "0",
+                                  step = "1",
+                                  placeholder = "Không giới hạn"
+                              })
+            </div>
+
+            <div class="col-md-6 col-lg-2">
+                <label for="year" class="form-label">
+                    Năm sản xuất
+                </label>
+
+                @Html.DropDownList(
+                              "year",
+                              yearOptions,
+                              "Tất cả năm",
+                              new { @class = "form-select" })
+            </div>
+
+            <div class="col-md-6 col-lg-2">
+                <label for="sort" class="form-label">
+                    Sắp xếp
+                </label>
+
+                @Html.DropDownList(
+                              "sort",
+                              sortOptions,
+                              new { @class = "form-select" })
+            </div>
+
+            <div class="col-12 d-flex flex-wrap gap-2">
+                <button type="submit" class="lux-button">
+                    Tìm kiếm
+                </button>
+
+                <a class="btn btn-outline-secondary"
+                   href="@Url.Action("Category", "Home", new
+                   {
+                       area = "",
+                       id = Model.CategoryID
+                   })">
+                    Bỏ bộ lọc
+                </a>
+            </div>
+        </div>
+    </div>
+}
+
+<p class="text-muted mb-4">
+    Tìm thấy @Model.TotalItems mẫu xe
+    · Trang @Model.Page / @Model.TotalPages
+</p>
+
+@if (Model.Items.Count == 0)
+{
+    <div class="category-empty">
+        <h4>Chưa có xe phù hợp</h4>
+
+        <p class="text-muted mb-0">
+            Danh mục hiện chưa có xe còn hàng hoặc không có xe
+            khớp với bộ lọc bạn chọn.
+        </p>
+    </div>
+}
+else
+{
+    <div class="row g-4">
+        @foreach (var car in Model.Items)
+        {
+            string imageUrl = CarImage(car.ProductImage);
+
+            <div class="col-12 col-md-6 col-xl-4">
+                <article class="category-car">
+                    <div class="category-car-image">
+                        @if (!string.IsNullOrWhiteSpace(imageUrl))
+                        {
+                            <img src="@imageUrl"
+                                 alt="@car.ProductName"
+                                 loading="lazy"
+                                 onerror="this.hidden=true; this.nextElementSibling.hidden=false;" />
+
+                            <span hidden>Đang cập nhật ảnh</span>
+                        }
+                        else
+                        {
+                            <span>Đang cập nhật ảnh</span>
+                        }
+                    </div>
+
+                    <div class="category-car-body">
+                        <div class="category-car-brand">
+                            @Model.CategoryName
+                        </div>
+
+                        <h2>@car.ProductName</h2>
+
+                        <p class="category-car-spec">
+                            Năm:
+                            @(car.ModelYear.HasValue
+                                ? car.ModelYear.Value.ToString()
+                                : "Đang cập nhật")
+                        </p>
+
+                        <p class="category-car-spec">
+                            Động cơ:
+                            @(string.IsNullOrWhiteSpace(car.Engine)
+                                ? "Đang cập nhật"
+                                : car.Engine)
+                        </p>
+
+                        <div class="category-car-price">
+                            @string.Format(vi, "{0:N0}", car.ProductPrice)
+                            <small>VNĐ</small>
+                        </div>
+
+                        <div class="category-car-actions">
+                            <a class="btn btn-outline-secondary"
+                               href="@Url.Action("Details", "Home", new
+                               {
+                                   area = "",
+                                   id = car.ProductID
+                               })">
+                                Chi tiết
+                            </a>
+
+                            @using (Html.BeginForm(
+                                "Add",
+                                "Cart",
+                                new { area = "" },
+                                FormMethod.Post,
+                                new { @class = "m-0" }))
+                            {
+                                @Html.AntiForgeryToken()
+
+                                <input type="hidden"
+                                       name="id"
+                                       value="@car.ProductID" />
+
+                                <input type="hidden"
+                                       name="quantity"
+                                       value="1" />
+
+                                <button type="submit" class="lux-button">
+                                    Thêm vào giỏ
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </article>
+            </div>
+        }
+    </div>
+}
+
+@if (Model.TotalPages > 1)
+{
+    int startPage = Math.Max(1, Model.Page - 2);
+    int endPage = Math.Min(Model.TotalPages, Model.Page + 2);
+
+    <nav class="mt-4" aria-label="Phân trang sản phẩm">
+        <ul class="pagination flex-wrap">
+            @for (int p = startPage; p <= endPage; p++)
+            {
+                <li class="page-item @(p == Model.Page ? "active" : "")">
+                    <a class="page-link"
+                       href="@Url.Action("Category", "Home", new
+                       {
+                           area = "",
+                           id = Model.CategoryID,
+                           page = p,
+                           searchTerm = Model.SearchTerm,
+                           minPrice = Model.MinPrice.HasValue
+                               ? Model.MinPrice.Value.ToString(
+                                   "0", CultureInfo.InvariantCulture)
+                               : "",
+                           maxPrice = Model.MaxPrice.HasValue
+                               ? Model.MaxPrice.Value.ToString(
+                                   "0", CultureInfo.InvariantCulture)
+                               : "",
+                           year = Model.Year,
+                           sort = Model.Sort
+                       })">
+                        @p
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+}

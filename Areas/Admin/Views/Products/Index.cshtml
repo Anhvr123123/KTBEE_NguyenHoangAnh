@@ -1,0 +1,230 @@
+﻿@model System.Collections.Generic.IEnumerable<KTBEE_NguyenHoangAnh.Models.Product>
+@using System
+@using System.Linq
+@using System.Globalization
+
+@{
+    ViewBag.Title = "Quản lý sản phẩm";
+    Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
+
+    var vi = CultureInfo.GetCultureInfo("vi-VN");
+    var products = Model.ToList();
+}
+
+@functions {
+    public string ProductImageUrl(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return "";
+        }
+
+        string image = value.Trim();
+
+        if (image.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+            image.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            return image;
+        }
+
+        if (image.StartsWith("~/"))
+        {
+            return Url.Content(image);
+        }
+
+        if (image.StartsWith("/"))
+        {
+            return image;
+        }
+
+        return Url.Content("~/Images/cars/" + image);
+    }
+}
+
+@section styles {
+    <link href="@Url.Content("~/Content/LuxuryAuto/ProductViews.css")"
+          rel="stylesheet" />
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <h2 class="mb-0">Quản lý sản phẩm</h2>
+
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary"
+           href="@Url.Action("Index", "Inventory",
+               new { area = "Admin" })">
+            Quản lý kho
+        </a>
+
+        <a class="btn btn-success"
+           href="@Url.Action("Create", "Products",
+               new { area = "Admin" })">
+            Thêm xe mới
+        </a>
+    </div>
+</div>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger" role="alert">
+        @TempData["Error"]
+    </div>
+}
+
+@using (Html.BeginForm(
+    "Index",
+    "Products",
+    new { area = "Admin" },
+    FormMethod.Get))
+{
+    <div class="input-group mb-4">
+        <input type="search"
+               name="searchTerm"
+               value="@ViewBag.SearchTerm"
+               class="form-control"
+               placeholder="Tìm tên xe..."
+               aria-label="Tìm sản phẩm" />
+
+        <button type="submit" class="btn btn-primary">
+            Tìm kiếm
+        </button>
+
+        <a class="btn btn-outline-secondary"
+           href="@Url.Action("Index", "Products",
+               new { area = "Admin" })">
+            Tất cả
+        </a>
+    </div>
+}
+
+<p class="text-muted">
+    Có @products.Count mẫu xe trong danh sách.
+</p>
+
+<div class="table-responsive">
+    <table class="table table-bordered product-admin-table">
+        <thead>
+            <tr>
+                <th>Sản phẩm</th>
+                <th>Hãng</th>
+                <th>Giá bán</th>
+                <th>Còn lại</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @if (products.Count == 0)
+            {
+                <tr>
+                    <td colspan="5" class="text-center py-4">
+                        Không tìm thấy sản phẩm.
+                    </td>
+                </tr>
+            }
+            else
+            {
+                foreach (var product in products)
+                {
+                    var stock = product.ProductDetails
+                        .OrderBy(d => d.ProductDetailID)
+                        .FirstOrDefault();
+
+                    int available = stock == null
+                        ? 0
+                        : stock.Quantity - stock.QuantitySold;
+
+                    string imageUrl =
+                        ProductImageUrl(product.ProductImage);
+
+                    <tr>
+                        <td>
+                            <div class="product-admin-name">
+                                @if (!string.IsNullOrWhiteSpace(imageUrl))
+                                {
+                                    <img src="@imageUrl"
+                                         alt="@product.ProductName"
+                                         onerror="this.hidden=true;" />
+                                }
+
+                                <div>
+                                    <strong>@product.ProductName</strong>
+
+                                    <div class="text-muted small">
+                                        Mã xe: @product.ProductID
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td>
+                            @(product.Category != null
+                                ? product.Category.CategoryName
+                                : "Chưa phân loại")
+                        </td>
+
+                        <td>
+                            @string.Format(
+                                     vi,
+                                     "{0:N0}",
+                                     product.ProductPrice)
+                            VNĐ
+                        </td>
+
+                        <td>
+                            @if (available > 0)
+                            {
+                                <span class="badge bg-success">
+                                    @available xe
+                                </span>
+                            }
+                            else if (available == 0)
+                            {
+                                <span class="badge bg-secondary">
+                                    Hết hàng
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    Lệch kho: @available
+                                </span>
+                            }
+                        </td>
+
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                <a class="btn btn-primary btn-sm"
+                                   href="@Url.Action("Details", "Products", new
+                                   {
+                                       area = "Admin",
+                                       id = product.ProductID
+                                   })">
+                                    Chi tiết
+                                </a>
+
+                                <a class="btn btn-warning btn-sm"
+                                   href="@Url.Action("Edit", "Products", new
+                                   {
+                                       area = "Admin",
+                                       id = product.ProductID
+                                   })">
+                                    Sửa
+                                </a>
+
+                                <a class="btn btn-danger btn-sm"
+                                   href="@Url.Action("Delete", "Products", new
+                                   {
+                                       area = "Admin",
+                                       id = product.ProductID
+                                   })">
+                                    Xóa
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

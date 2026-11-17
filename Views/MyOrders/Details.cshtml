@@ -1,0 +1,22 @@
+﻿@model KTBEE_NguyenHoangAnh.Models.Order
+
+@{
+    ViewBag.Title = "Chi tiết đơn hàng";
+    Layout = "~/Views/Shared/_CustomerLayout.cshtml";
+}
+
+@section styles {
+    <link href="@Url.Content("~/Content/LuxuryAuto/OrderFeatures.css")"
+          rel="stylesheet" />
+}
+
+<div class="orders-heading">
+    <h2>Chi tiết đơn hàng #@Model.OrderID</h2>
+
+    <a class="btn btn-outline-secondary"
+       href="@Url.Action("Index", new { area = "" })">
+        Quay lại đơn hàng
+    </a>
+</div>
+
+@Html.Partial("~/Views/Shared/_OrderInvoice.cshtml", Model)
