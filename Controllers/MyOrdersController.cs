@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Web.Mvc;
@@ -47,6 +48,7 @@ namespace KTBEE_NguyenHoangAnh.Controllers
                 "Vui lòng sử dụng tài khoản khách hàng.");
         }
 
+        // DANH SÁCH ĐƠN HÀNG
         [HttpGet]
         public ActionResult Index(
             string searchTerm,
@@ -72,27 +74,30 @@ namespace KTBEE_NguyenHoangAnh.Controllers
 
             var query = db.Orders
                 .AsNoTracking()
-                .Where(o => o.CustomerID == customer.CustomerID);
+                .Where(o =>
+                    o.CustomerID == customer.CustomerID);
 
             int totalOrders = query.Count();
 
             if (!string.IsNullOrWhiteSpace(searchTerm))
             {
                 string idText = searchTerm.TrimStart('#');
-                bool hasId = int.TryParse(idText, out int orderId);
 
+                bool hasId = int.TryParse(idText, out int orderId);
                 if (hasId)
                 {
                     query = query.Where(o =>
                         o.OrderID == orderId ||
                         o.OrderDetails.Any(d =>
-                            d.Product.ProductName.Contains(searchTerm)));
+                            d.Product.ProductName.Contains(
+                                searchTerm)));
                 }
                 else
                 {
                     query = query.Where(o =>
                         o.OrderDetails.Any(d =>
-                            d.Product.ProductName.Contains(searchTerm)));
+                            d.Product.ProductName.Contains(
+                                searchTerm)));
                 }
             }
 
@@ -101,7 +106,8 @@ namespace KTBEE_NguyenHoangAnh.Controllers
                     ? OrderStates.All
                     : new[] { status };
 
-            var groups = new List<CustomerOrderGroup>();
+            var groups =
+                new List<CustomerOrderGroup>();
 
             foreach (string state in selectedStates)
             {
@@ -110,15 +116,15 @@ namespace KTBEE_NguyenHoangAnh.Controllers
 
                 int count = groupQuery.Count();
 
-                // Tất cả: 2 đơn mỗi nhóm.
-                // Một trạng thái: mặc định 2, xem thêm tối đa 50.
                 int limit =
-                    !string.IsNullOrWhiteSpace(status) && expanded
+                    !string.IsNullOrWhiteSpace(status) &&
+                    expanded
                         ? 50
                         : 2;
 
                 var items = groupQuery
-                    .Include(o => o.OrderDetails.Select(d => d.Product))
+                    .Include(o =>
+                        o.OrderDetails.Select(d => d.Product))
                     .OrderByDescending(o => o.OrderDate)
                     .ThenByDescending(o => o.OrderID)
                     .Take(limit)
@@ -142,6 +148,7 @@ namespace KTBEE_NguyenHoangAnh.Controllers
             });
         }
 
+        // CHI TIẾT / HÓA ĐƠN
         [HttpGet]
         public ActionResult Details(int id)
         {
@@ -152,11 +159,11 @@ namespace KTBEE_NguyenHoangAnh.Controllers
                 return LoginRequired();
             }
 
-            // Kiểm tra quyền sở hữu ngay trong truy vấn.
             Order order = db.Orders
                 .AsNoTracking()
                 .Include(o => o.Customer)
-                .Include(o => o.OrderDetails.Select(d => d.Product))
+                .Include(o =>
+                    o.OrderDetails.Select(d => d.Product))
                 .FirstOrDefault(o =>
                     o.OrderID == id &&
                     o.CustomerID == customer.CustomerID);
@@ -169,9 +176,12 @@ namespace KTBEE_NguyenHoangAnh.Controllers
             return View(order);
         }
 
+        // MUA LẠI: THÊM 1 XE VÀO GIỎ
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult BuyAgain(int orderId, int productId)
+        public ActionResult BuyAgain(
+            int orderId,
+            int productId)
         {
             Customer customer = CurrentCustomer();
 
@@ -190,7 +200,8 @@ namespace KTBEE_NguyenHoangAnh.Controllers
                 return HttpNotFound();
             }
 
-            Product product = db.Products.Find(productId);
+            Product product =
+                db.Products.Find(productId);
 
             if (product == null)
             {
@@ -201,7 +212,8 @@ namespace KTBEE_NguyenHoangAnh.Controllers
             }
 
             ProductDetail stock = db.ProductDetails
-                .FirstOrDefault(d => d.ProductID == productId);
+                .FirstOrDefault(d =>
+                    d.ProductID == productId);
 
             int available = stock == null
                 ? 0
@@ -215,10 +227,11 @@ namespace KTBEE_NguyenHoangAnh.Controllers
             CartItem existing = cart.FirstOrDefault(
                 c => c.ProductID == productId);
 
-            int currentQuantity =
-                existing == null ? 0 : existing.Quantity;
+            int currentQuantity = existing == null
+                ? 0
+                : existing.Quantity;
 
-            if (currentQuantity + 1 > available)
+            if (currentQuantity >= available)
             {
                 TempData["Error"] =
                     "Xe không đủ số lượng để mua thêm.";
@@ -240,9 +253,9 @@ namespace KTBEE_NguyenHoangAnh.Controllers
             else
             {
                 existing.Quantity += 1;
-                existing.ProductPrice = product.ProductPrice;
                 existing.ProductName = product.ProductName;
                 existing.ProductImage = product.ProductImage;
+                existing.ProductPrice = product.ProductPrice;
             }
 
             Session["Cart"] = cart;
@@ -254,6 +267,122 @@ namespace KTBEE_NguyenHoangAnh.Controllers
                 "Index",
                 "Cart",
                 new { area = "" });
+        }
+
+        // HỦY ĐƠN HÀNG
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Cancel(int id)
+        {
+            Customer customer = CurrentCustomer();
+
+            if (customer == null)
+            {
+                return LoginRequired();
+            }
+
+            using (var transaction =
+                db.Database.BeginTransaction(
+                    IsolationLevel.Serializable))
+            {
+                try
+                {
+                    // Chỉ được hủy đơn thuộc tài khoản hiện tại.
+                    Order order = db.Orders
+                        .Include(o => o.OrderDetails)
+                        .FirstOrDefault(o =>
+                            o.OrderID == id &&
+                            o.CustomerID == customer.CustomerID);
+
+                    if (order == null)
+                    {
+                        transaction.Rollback();
+
+                        TempData["Error"] =
+                            "Không tìm thấy đơn hàng thuộc tài khoản của bạn.";
+
+                        return RedirectToAction("Index");
+                    }
+
+                    string previousStatus =
+                        (order.OrderStatus ?? "").Trim();
+
+                    // Chặn hủy lặp, tránh hoàn kho nhiều lần.
+                    if (previousStatus == "Đã hủy")
+                    {
+                        transaction.Rollback();
+
+                        TempData["Error"] =
+                            "Đơn hàng này đã được hủy trước đó.";
+
+                        return RedirectToAction("Index");
+                    }
+
+                    bool releaseStock =
+                        previousStatus == "Chờ thanh toán" ||
+                        previousStatus == "Chờ xác nhận" ||
+                        previousStatus == "Đang xử lý";
+
+                    // Xe chưa giao đi: giải phóng số lượng giữ.
+                    // Xe đang vận chuyển / đã giao:
+                    // chỉ nhập lại kho khi thực tế nhận xe trả.
+                    if (releaseStock)
+                    {
+                        foreach (var item in order.OrderDetails)
+                        {
+                            ProductDetail stock = db.ProductDetails
+                                .FirstOrDefault(d =>
+                                    d.ProductID == item.ProductID);
+
+                            if (item.Quantity <= 0 ||
+                                stock == null ||
+                                stock.QuantitySold < item.Quantity)
+                            {
+                                throw new InvalidOperationException(
+                                    "Dữ liệu tồn kho không hợp lệ.");
+                            }
+
+                            stock.QuantitySold -= item.Quantity;
+                        }
+                    }
+
+                    order.OrderStatus = "Đã hủy";
+
+                    // Giữ nguyên PaymentStatus.
+                    // Hủy đơn không đồng nghĩa đã hoàn tiền.
+                    db.SaveChanges();
+                    transaction.Commit();
+
+                    string message =
+                        "Đã hủy đơn hàng #" + order.OrderID + ".";
+
+                    if (previousStatus == "Đang vận chuyển" ||
+                        previousStatus == "Đã giao")
+                    {
+                        message +=
+                            " Vui lòng liên hệ cửa hàng để xử lý trả xe.";
+                    }
+
+                    if (order.PaymentStatus == "Đã thanh toán")
+                    {
+                        message +=
+                            " Vui lòng liên hệ cửa hàng để xử lý hoàn tiền.";
+                    }
+
+                    TempData["Success"] = message;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+
+                    System.Diagnostics.Debug.WriteLine(ex);
+
+                    TempData["Error"] =
+                        "Không thể hủy đơn hàng. Vui lòng liên hệ cửa hàng hoặc thử lại.";
+                }
+            }
+
+            return RedirectToAction("Index");
         }
 
         protected override void Dispose(bool disposing)

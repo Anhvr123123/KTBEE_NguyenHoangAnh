@@ -176,8 +176,13 @@ namespace KTBEE_NguyenHoangAnh.Controllers
                         OrderDate = DateTime.Now,
                         TotalAmount = total,
                         PaymentMethod = model.PaymentMethod,
-                        PaymentStatus = "Chưa thanh toán",
-                        OrderStatus = "Chờ thanh toán",
+
+                        // Mô phỏng: chọn chuyển khoản thì tự đánh dấu đã thanh toán.
+                        PaymentStatus = model.PaymentMethod == "BANK"
+         ? "Đã thanh toán"
+         : "Chưa thanh toán",
+
+                        OrderStatus = "Chờ xác nhận",
                         ShippingMethod = "Giao xe",
                         ShippingAddress = model.ShippingAddress.Trim()
                     };

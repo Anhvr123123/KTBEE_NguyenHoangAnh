@@ -5,7 +5,7 @@
     ViewBag.Title = "Chi tiết đơn hàng";
     Layout = "~/Areas/Admin/Views/Shared/_AdminLayout.cshtml";
 
-    string[] nextStates = OrderStates.Next(Model.OrderStatus);
+    string[] nextStates = OrderStates.All;
 }
 
 @section styles {
@@ -61,7 +61,14 @@
                                 required>
                             @foreach (string state in nextStates)
                             {
-                                <option value="@state">@state</option>
+                                if (state == Model.OrderStatus)
+                                {
+                                    <option value="@state" selected="selected">@state</option>
+                                }
+                                else
+                                {
+                                    <option value="@state">@state</option>
+                                }
                             }
                         </select>
 

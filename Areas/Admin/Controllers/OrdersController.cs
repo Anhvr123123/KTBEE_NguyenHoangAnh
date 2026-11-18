@@ -188,36 +188,27 @@ namespace KTBEE_NguyenHoangAnh.Areas.Admin.Controllers
                     string[] allowed =
                         OrderStates.Next(order.OrderStatus);
 
-                    if (!allowed.Contains(status))
+                    bool isCancellation = status == "Đã hủy";
+
+                    if (order.OrderStatus == "Đã hủy")
                     {
                         transaction.Rollback();
 
-                        TempData["Error"] =
-                            "Không thể chuyển từ '" +
-                            order.OrderStatus +
-                            "' sang '" + status + "'.";
+                        TempData["Error"] = "Đơn hàng này đã hủy trước đó.";
 
-                        return RedirectToAction(
-                            "Details",
-                            new { id });
+                        return RedirectToAction("Details", new { id });
                     }
 
-                    // Đơn đã thu tiền cần xử lý hoàn tiền riêng.
-                    if (status == "Đã hủy" &&
+                    if (!isCancellation && !allowed.Contains(status))
+
+                        // Đơn đã thu tiền cần xử lý hoàn tiền riêng.
+                        if (status == "Đã hủy" &&
                         order.PaymentStatus == "Đã thanh toán")
                     {
-                        transaction.Rollback();
-
-                        TempData["Error"] =
-                            "Đơn đã thanh toán. Cần xử lý hoàn tiền " +
-                            "trước khi thực hiện hủy.";
-
-                        return RedirectToAction(
-                            "Details",
-                            new { id });
+                       
                     }
 
-                    if (status == "Đã hủy")
+                    if (isCancellation && order.OrderStatus != "Đã giao")
                     {
                         foreach (var item in order.OrderDetails)
                         {

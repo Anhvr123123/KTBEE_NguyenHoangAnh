@@ -14,6 +14,50 @@
 @section styles {
     <link href="@Url.Content("~/Content/LuxuryAuto/OrderFeatures.css")"
           rel="stylesheet" />
+
+    <style>
+        .customer-order-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .customer-order-actions {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+            .customer-order-actions form {
+                margin: 0;
+            }
+
+            .customer-order-actions .btn,
+            .customer-order-actions .lux-button {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 44px;
+                padding: 10px 16px;
+                border-radius: 6px;
+                font-size: 14px;
+                text-decoration: none;
+            }
+
+            .customer-order-actions .buy-again-button {
+                border: 1px solid #b08b4f;
+                background: white;
+                color: #88652f;
+            }
+
+                .customer-order-actions .buy-again-button:hover {
+                    background: #f6f0e5;
+                }
+    </style>
 }
 
 <div class="orders-heading">
@@ -100,7 +144,7 @@
         <h4>Bạn chưa có đơn hàng nào</h4>
 
         <p>
-            Hãy đặt đơn ngay để bắt đầu trải nghiệm LuxuryAuto.
+            Hãy đặt đơn để bắt đầu trải nghiệm LuxuryAuto.
         </p>
 
         <a class="lux-button"
@@ -155,7 +199,7 @@ else
 
                                 <div class="text-muted small mt-1">
                                     Số lượng: @detail.Quantity
-                                    ·
+                                    ×
                                     @string.Format(
                                              vi,
                                              "{0:N0}",
@@ -175,29 +219,6 @@ else
                                        })">
                                         Xem sản phẩm
                                     </a>
-
-                                    @using (Html.BeginForm(
-                                        "BuyAgain",
-                                        "MyOrders",
-                                        new { area = "" },
-                                        FormMethod.Post,
-                                        new { @class = "m-0" }))
-                                    {
-                                        @Html.AntiForgeryToken()
-
-                                        <input type="hidden"
-                                               name="orderId"
-                                               value="@order.OrderID" />
-
-                                        <input type="hidden"
-                                               name="productId"
-                                               value="@detail.ProductID" />
-
-                                        <button type="submit"
-                                                class="btn btn-outline-secondary btn-sm">
-                                            Mua lại
-                                        </button>
-                                    }
                                 </div>
                             }
                         </div>
@@ -218,14 +239,71 @@ else
                             </div>
                         </div>
 
-                        <a class="lux-button"
-                           href="@Url.Action("Details", "MyOrders", new
-                           {
-                               area = "",
-                               id = order.OrderID
-                           })">
-                            Xem hóa đơn
-                        </a>
+                        <div class="customer-order-actions">
+                            @if (order.OrderStatus != "Đã hủy")
+                            {
+                                using (Html.BeginForm(
+                                    "Cancel",
+                                    "MyOrders",
+                                    new { area = "" },
+                                    FormMethod.Post,
+                                    new { @class = "m-0" }))
+                                {
+                                    @Html.AntiForgeryToken()
+
+                                    <input type="hidden"
+                                           name="id"
+                                           value="@order.OrderID" />
+
+                                    <button type="submit"
+                                            class="btn btn-outline-danger"
+                                            onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này? Nếu đã thanh toán hoặc nhận xe, vui lòng liên hệ cửa hàng để xử lý hoàn tiền và trả xe.');">
+                                        Hủy đơn hàng
+                                    </button>
+                                }
+                            }
+
+                            @foreach (var item in order.OrderDetails)
+                            {
+                                if (item.Product != null)
+                                {
+                                    using (Html.BeginForm(
+                                        "BuyAgain",
+                                        "MyOrders",
+                                        new { area = "" },
+                                        FormMethod.Post,
+                                        new { @class = "m-0" }))
+                                    {
+                                        @Html.AntiForgeryToken()
+
+                                        <input type="hidden"
+                                               name="orderId"
+                                               value="@order.OrderID" />
+
+                                        <input type="hidden"
+                                               name="productId"
+                                               value="@item.ProductID" />
+
+                                        <button type="submit"
+                                                class="btn buy-again-button"
+                                                title="Thêm 1 xe @item.Product.ProductName vào giỏ hàng">
+                                            @(order.OrderDetails.Count == 1
+                                                ? "Mua lại"
+                                                : "Mua lại " + item.Product.ProductName)
+                                        </button>
+                                    }
+                                }
+                            }
+
+                            <a class="lux-button"
+                               href="@Url.Action("Details", "MyOrders", new
+                               {
+                                   area = "",
+                                   id = order.OrderID
+                               })">
+                                Xem hóa đơn
+                            </a>
+                        </div>
                     </div>
                 </article>
             }

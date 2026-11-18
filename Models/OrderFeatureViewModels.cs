@@ -7,25 +7,38 @@ namespace KTBEE_NguyenHoangAnh.Models
     {
         public static readonly string[] All =
         {
-            "Chờ thanh toán",
-            "Đang xử lý",
-            "Đang vận chuyển",
-            "Đã giao",
-            "Đã hủy"
-        };
+        "Chờ xác nhận",
+        "Đang xử lý",
+        "Đang vận chuyển",
+        "Đã giao",
+        "Đã hủy"
+    };
 
         public static string[] Next(string current)
         {
-            switch (current)
+            switch ((current ?? "").Trim())
             {
+                // Hỗ trợ cả các đơn cũ.
                 case "Chờ thanh toán":
-                    return new[] { "Đang xử lý", "Đã hủy" };
+                case "Chờ xác nhận":
+                    return new[]
+                    {
+                    "Đang xử lý",
+                    "Đã hủy"
+                };
 
                 case "Đang xử lý":
-                    return new[] { "Đang vận chuyển", "Đã hủy" };
+                    return new[]
+                    {
+                    "Đang vận chuyển",
+                    "Đã hủy"
+                };
 
                 case "Đang vận chuyển":
-                    return new[] { "Đã giao" };
+                    return new[]
+                    {
+                    "Đã giao"
+                };
 
                 default:
                     return new string[0];
